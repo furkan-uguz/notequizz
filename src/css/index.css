@@ -7,6 +7,13 @@
       "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
       "Courier New", monospace;
+    --color-red-100: oklch(93.6% 0.032 17.717);
+    --color-red-200: oklch(88.5% 0.062 18.334);
+    --color-red-300: oklch(80.8% 0.114 19.571);
+    --color-red-600: oklch(57.7% 0.245 27.325);
+    --color-red-800: oklch(44.4% 0.177 26.899);
+    --color-green-300: oklch(87.1% 0.15 154.449);
+    --color-green-500: oklch(72.3% 0.219 149.579);
     --color-black: #000;
     --color-white: #fff;
     --spacing: 0.25rem;
@@ -27,6 +34,8 @@
     --text-xl--line-height: calc(1.75 / 1.25);
     --text-2xl: 1.5rem;
     --text-2xl--line-height: calc(2 / 1.5);
+    --text-3xl: 1.875rem;
+    --text-3xl--line-height: calc(2.25 / 1.875);
     --text-6xl: 3.75rem;
     --text-6xl--line-height: 1;
     --font-weight-extralight: 200;
@@ -646,6 +655,9 @@
   .h-16 {
     height: calc(var(--spacing) * 16);
   }
+  .h-20 {
+    height: calc(var(--spacing) * 20);
+  }
   .h-24 {
     height: calc(var(--spacing) * 24);
   }
@@ -1117,6 +1129,12 @@
     --tw-scale-z: 105%;
     scale: var(--tw-scale-x) var(--tw-scale-y);
   }
+  .scale-110 {
+    --tw-scale-x: 110%;
+    --tw-scale-y: 110%;
+    --tw-scale-z: 110%;
+    scale: var(--tw-scale-x) var(--tw-scale-y);
+  }
   .rotate-0 {
     rotate: 0deg;
   }
@@ -1202,6 +1220,9 @@
   }
   .appearance-none {
     appearance: none;
+  }
+  .grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .grid-cols-4 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -1496,6 +1517,10 @@
     border-style: var(--tw-border-style);
     border-width: 3px;
   }
+  .border-4 {
+    border-style: var(--tw-border-style);
+    border-width: 4px;
+  }
   .border-medium {
     border-style: var(--tw-border-style);
     border-width: var(--heroui-border-width-medium);
@@ -1594,6 +1619,9 @@
   .border-foreground-400 {
     border-color: hsl(var(--heroui-foreground-400) / 1);
   }
+  .border-green-300 {
+    border-color: var(--color-green-300);
+  }
   .border-primary {
     border-color: hsl(var(--heroui-primary) / 1);
   }
@@ -1605,6 +1633,21 @@
   }
   .border-primary-400 {
     border-color: hsl(var(--heroui-primary-400) / 1);
+  }
+  .border-red-100 {
+    border-color: var(--color-red-100);
+  }
+  .border-red-200 {
+    border-color: var(--color-red-200);
+  }
+  .border-red-300 {
+    border-color: var(--color-red-300);
+  }
+  .border-red-600 {
+    border-color: var(--color-red-600);
+  }
+  .border-red-800 {
+    border-color: var(--color-red-800);
   }
   .border-secondary {
     border-color: hsl(var(--heroui-secondary) / 1);
@@ -1801,6 +1844,9 @@
       background-color: color-mix(in oklab, hsl(var(--heroui-foreground) / 1) 10%, transparent);
     }
   }
+  .bg-green-500 {
+    background-color: var(--color-green-500);
+  }
   .bg-overlay {
     background-color: hsl(var(--heroui-overlay) / 1);
   }
@@ -1833,6 +1879,9 @@
     @supports (color: color-mix(in lab, red, red)) {
       background-color: color-mix(in oklab, hsl(var(--heroui-primary) / 1) 20%, transparent);
     }
+  }
+  .bg-red-800 {
+    background-color: var(--color-red-800);
   }
   .bg-secondary {
     background-color: hsl(var(--heroui-secondary) / 1);
@@ -2176,6 +2225,10 @@
   .text-2xl {
     font-size: var(--text-2xl);
     line-height: var(--tw-leading, var(--text-2xl--line-height));
+  }
+  .text-3xl {
+    font-size: var(--text-3xl);
+    line-height: var(--tw-leading, var(--text-3xl--line-height));
   }
   .text-6xl {
     font-size: var(--text-6xl);
@@ -5458,6 +5511,16 @@
       }
     }
   }
+  .hover\:scale-105 {
+    &:hover {
+      @media (hover: hover) {
+        --tw-scale-x: 105%;
+        --tw-scale-y: 105%;
+        --tw-scale-z: 105%;
+        scale: var(--tw-scale-x) var(--tw-scale-y);
+      }
+    }
+  }
   .hover\:scale-125 {
     &:hover {
       @media (hover: hover) {
@@ -5556,6 +5619,13 @@
     &:hover {
       @media (hover: hover) {
         background-color: hsl(var(--heroui-default-200) / 1);
+      }
+    }
+  }
+  .hover\:bg-green-500 {
+    &:hover {
+      @media (hover: hover) {
+        background-color: var(--color-green-500);
       }
     }
   }
@@ -9621,6 +9691,11 @@
       @media (width >= 96rem) {
         max-width: 96rem;
       }
+    }
+  }
+  .lg\:grid-cols-4 {
+    @media (width >= 64rem) {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
     }
   }
   .xl\:container {

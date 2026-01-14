@@ -11,6 +11,7 @@ import { Clock, Star } from 'lucide-react';
 import Flex, { FlexType } from '../components/Flex';
 import { Button, Card, Progress } from '@heroui/react';
 import { NoteStaff } from '../components/NoteStaff';
+import { cn } from '../lib/utils';
 
 interface IHome {
     setGameStatus: Function;
@@ -19,7 +20,6 @@ interface IHome {
 
 const Home: FC<IHome> = ({ ...props }: IHome): JSX.Element => {
     const [timeLeft, setTimeLeft] = useState(Constants.GAME_DURATION_MIN); //TODO İleride ayarlar kısmından süresi max min ayarlanacak.
-    const [score, setScore] = useState(0);
     const [question, setQuestion] = useState<Question>(getQuestion());
     const [stats, setStats] = useState({ correct: 0, total: 0 });
     const [selection, setSelection] = useState<{ answer: string; isCorrect: boolean } | null>(null);
@@ -44,7 +44,7 @@ const Home: FC<IHome> = ({ ...props }: IHome): JSX.Element => {
             setTimeLeft(t => t - 1);
         }, 1000);
         return () => clearInterval(timerId);
-    }, [timeLeft, score, stats]);
+    }, [timeLeft, stats]);
 
     useEffect(() => {
         if (!loaded)
@@ -58,7 +58,7 @@ const Home: FC<IHome> = ({ ...props }: IHome): JSX.Element => {
         setSelection({ answer, isCorrect });
 
         if (isCorrect) {
-            setScore(s => s + 5);
+            props.setPoint(game.point + 5);
         }
         setStats(s => ({ correct: s.correct + (isCorrect ? 1 : 0), total: s.total + 1 }));
 
@@ -80,10 +80,12 @@ const Home: FC<IHome> = ({ ...props }: IHome): JSX.Element => {
     }
 
     const gameBegin = (): JSX.Element => {
-        if (game.gameStatus != GameStatus.PLAYING)
+        if (game.gameStatus == GameStatus.START)
             return readyGame();
-        else
+        else if (game.gameStatus == GameStatus.PLAYING)
             return startGame();
+        else
+            return endGame();  
     }
 
     const readyGame = (): JSX.Element => {
@@ -106,7 +108,7 @@ const Home: FC<IHome> = ({ ...props }: IHome): JSX.Element => {
                     <header className='flex sm:flex-row justify-between items-center gap-4'>
                         <div className='flex items-center gap-3 bg-card/80 backdrop-blur-sm p-2 px-4 rounded-full shadow-md bg-white'>
                             <Star className='w-6 h-6 text-secondary' />
-                            <span className='text-2xl font-bold text-secondary'>{score}</span>
+                            <span className='text-2xl font-bold text-secondary'>{game.point}</span>
                         </div>
                         <div className='w-full sm:w-auto flex items-center gap-3 bg-card/80 backdrop-blur-sm p-2 px-4 rounded-full shadow-md bg-white'>
                             <Clock className='w-6 h-6 text-secondary' />
@@ -119,9 +121,36 @@ const Home: FC<IHome> = ({ ...props }: IHome): JSX.Element => {
                             <NoteStaff note={question.correctNote} />
                         </Card>
                     </main>
+                    <footer className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        {question.options.map((option, index) => {
+                            const isSelected = selection?.answer === option;
+                            const isCorrect = question.correctNote.solfege === option;
+
+                            return (
+                                <Button
+                                    key={index}
+                                    onClick={() => handleAnswer(option)}
+                                    disabled={!!selection}
+                                    className={cn(
+                                        "h-20 text-3xl font-bold transition-all duration-300 transform hover:scale-105 text-secondary",
+                                        selection && isCorrect && "bg-green-500 hover:bg-green-500 text-white scale-110 border-green-300 border-4",
+                                        selection && isSelected && !isCorrect && "bg-red-800 text-white scale-110 border-red-600 border-4",
+                                        selection && !isSelected && !isCorrect && "opacity-50"
+                                    )}
+                                    variant="solid"
+                                >
+                                    {option}
+                                </Button>
+                            );
+                        })}
+                    </footer>
                 </div>
             </div>
         );
+    }
+
+    const endGame = ():JSX.Element => {
+        return(<></>);
     }
 
     return (
