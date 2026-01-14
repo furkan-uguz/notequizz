@@ -5,17 +5,6 @@ export type Note = {
   position: number; // 0 is bottom line (E4), 8 is top line (F5)
 };
 
-const solfegeMap = {
-  'A': 'La',
-  'B': 'Si',
-  'C': 'Do',
-  'D': 'Re',
-  'E': 'Mi',
-  'F': 'Fa',
-  'G': 'Sol',
-} as const;
-
-
 // Notes on the treble clef staff
 export const notes: Note[] = [
   { name: 'E', solfege: 'Mi', octave: 4, position: 0 }, // Line 1
