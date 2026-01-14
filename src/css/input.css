@@ -1,8 +1,8 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-@tailwind variants;
-@tailwind screens;
+@import "tailwindcss";
+@source "../../node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}";
+@config "../../tailwind.config.js";
+
+@custom-variant dark (&:where(.dark, .dark *));
 
 * {
   font-family: 'Niconne-Regular';
@@ -47,7 +47,7 @@
   width: 70px;
   height: 120px;
   mask: url('../assets/note-icon.svg') center/cover no-repeat;
-  background-color: hsl(var(--nextui-primary));
+  background-color: hsl(var(--heroui-primary));
 }
 
 .loading-text {

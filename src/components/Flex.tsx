@@ -52,7 +52,7 @@ export const FlexType: FC<IFlexInterface> = (props: IFlexInterface) => {
     let clazz = flexType + flexDirection + align + justify + mxAuto + classN;
 
     return (
-        <div className={`${clazz}`}>
+        <div className={clazz}>
             {props.children}
         </div>
     )
@@ -67,7 +67,7 @@ const Flex: FC<IFlexInterface> = (props: IFlexInterface) => {
     let clazz = 'flex' + flexDirection + align + justify + mxAuto + classN;
 
     return (
-        <div className={`${clazz}`}>
+        <div className={clazz}>
             {props.children}
         </div>
     );

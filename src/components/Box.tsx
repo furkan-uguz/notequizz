@@ -20,7 +20,7 @@ const Box: FC<IBoxInterface> = (props: IBoxInterface) => {
     let classN = props.className !== undefined ? ' ' + props.className : '';
     let clazz = size + mxAuto + classN;
     return (
-        <div className={`${clazz}`} 
+        <div className={clazz} 
             onTransitionEnd={props.onTransitionEnd} 
             onAnimationEnd={props.onAnimationEnd}>
             {props.children}

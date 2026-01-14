@@ -3,6 +3,7 @@ import Action from '../../utils/Action';
 import ActionTypes from '../../utils/Types';
 import { gameState, initialize } from '../reducers/gameReducer';
 import { dispatcher } from '..';
+import { GameStatus } from '../../utils/Const';
 
 
 export const setGameLoading = (state: boolean) => (dispatch: Dispatch<Action>) => {
@@ -12,16 +13,16 @@ export const setGameLoading = (state: boolean) => (dispatch: Dispatch<Action>) =
     dispatcher(ActionTypes.GAME_LOADING, payload, dispatch);
 }
 
-export const setUserPoint = (state: number) => (dispatch: Dispatch<Action>) => {
+export const setPoint = (state: number) => (dispatch: Dispatch<Action>) => {
     const payload: gameState = initialize;
     payload.point = state;
 
     dispatcher(ActionTypes.GAME_SET_USER_POINT, payload, dispatch);
 }
 
-export const setGameStart = (state: boolean) => (dispatch: Dispatch<Action>) => {
+export const setGameStatus = (status: GameStatus) => (dispatch: Dispatch<Action>) => {
     const payload: gameState = initialize;
-    payload.isGameStart = state;
+    payload.gameStatus = status;
 
-    dispatcher(ActionTypes.GAME_START_GAME, payload, dispatch);
+    dispatcher(ActionTypes.GAME_CHANGE_STATUS, payload, dispatch);
 }
