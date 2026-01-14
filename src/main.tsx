@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom/client'
 import { HelmetProvider } from 'react-helmet-async';
 import { BrowserRouter, useNavigate } from 'react-router-dom'
 import { Provider, connect, useSelector } from 'react-redux';
-import { NextUIProvider } from '@nextui-org/react';
 import { IAddOptions, Loader, Resource } from 'resource-loader';
 import FingerprintJS from '@fingerprintjs/fingerprintjs';
 import WebFont from 'webfontloader';
@@ -13,9 +12,10 @@ import store from './states';
 import { StateType } from './states/reducers';
 import { setGameLoading } from './states/actions/gameActions';
 import { setFingerprintInitStatus, setVideoLoading, setFontLoading, setVideoContent, setMusicContent, setMusicLoading } from './states/actions/contentActions';
-import Const, { ContentList } from './utils/Const';
-import Loading from './components/Loading';
+import Constant, { ContentList } from './utils/Const';
+import Loading from './pages/Loading';
 import './css/index.css';
+import { HeroUIProvider } from '@heroui/react';
 
 interface IMain {
   setGameLoading: Function
@@ -29,7 +29,7 @@ interface IMain {
 
 const App: FC<IMain> = ({ ...props }: IMain): JSX.Element => {
   const [authenticatedUser, setAuthenticatedUser] = useState<AuthContextProvider>();
-  const [authLocale, setAuthLocale] = useState(Const.GUEST_USER);
+  const [authLocale, setAuthLocale] = useState(Constant.GUEST_USER);
   const [componentsInit, setComponentsInit] = useState(false);
   const content = useSelector((state: StateType) => state.content);
   const game = useSelector((state: StateType) => state.game);
@@ -70,7 +70,7 @@ const App: FC<IMain> = ({ ...props }: IMain): JSX.Element => {
   const setAuthLevel = () => {
     if (game.isLoading) {
       console.log("Auth Level");
-      buildAuthenticatedUser(Const.GUEST_USER, []);
+      buildAuthenticatedUser(Constant.GUEST_USER, []);
       props.setGameLoading(false);
     }
   }
@@ -138,7 +138,7 @@ const App: FC<IMain> = ({ ...props }: IMain): JSX.Element => {
     }
   }
 
-  const buildAuthenticatedUser = (authType: Const, user: any) => {
+  const buildAuthenticatedUser = (authType: string, user: any) => {
     let authUser: AuthContextProvider = {
       authType: authType,
       authenticatedUser: {
@@ -149,7 +149,7 @@ const App: FC<IMain> = ({ ...props }: IMain): JSX.Element => {
         roles: []
       }
     }
-    if (authType === Const.AUTH_USER) {
+    if (authType === Constant.AUTH_USER) {
       authUser.authenticatedUser.id = user.id;
       authUser.authenticatedUser.fullname = user.fullname;
       authUser.authenticatedUser.username = user.username;
@@ -161,13 +161,13 @@ const App: FC<IMain> = ({ ...props }: IMain): JSX.Element => {
     setAuthenticatedUser(authUser);
   }
 
-  return (!componentsInit ? <><Loading initDegree={0} /></> :
+  return (!componentsInit ? <><Loading/></> :
     <>
       <HelmetProvider>
         <AuthContext.Provider value={authenticatedUser!}>
-          <NextUIProvider navigate={navigate}>
+          <HeroUIProvider navigate={navigate}>
             <Router auth={authLocale} />
-          </NextUIProvider>
+          </HeroUIProvider>
         </AuthContext.Provider>
       </HelmetProvider>
     </>
