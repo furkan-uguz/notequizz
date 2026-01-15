@@ -21,8 +21,8 @@ export function NoteStaff({ note }: NoteStaffProps) {
 
     console.log(note);
     return (
-        <div className="relative w-full h-full max-w-md mx-auto flex items-center">
-            <div className="w-36 h-36">
+        <div className="relative w-full h-full max-w-md mx-auto flex items-center gap-1">
+            <div className="flex items-center w-25 h-38">
                 <TrebleClef className="h-28 w-auto text-foreground" />
             </div>
             <div className="relative pr-10 w-full">

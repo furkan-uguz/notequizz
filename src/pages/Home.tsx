@@ -117,7 +117,7 @@ const Home: FC<IHome> = ({ ...props }: IHome): JSX.Element => {
                         </div>
                     </header>
                     <main>
-                        <Card shadow='lg' className='bg-white'>
+                        <Card shadow='lg' className='bg-white overflow-hidden'>
                             <CardBody>
                                 <NoteStaff note={question.correctNote} />
                             </CardBody>
