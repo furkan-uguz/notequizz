@@ -7,7 +7,7 @@ import Constants, { GameStatus } from '../utils/Const';
 import { setGameStatus, setPoint } from '../states/actions/gameActions';
 import { StateType } from '../states/reducers';
 import { getQuestion, Question } from '../lib/Notes';
-import { Clock, Star } from 'lucide-react';
+import { Clock, LogOut, Star } from 'lucide-react';
 import Flex, { FlexType } from '../components/Flex';
 import { Button, Card, CardBody, Progress } from '@heroui/react';
 import { NoteStaff } from '../components/NoteStaff';
@@ -20,6 +20,7 @@ interface IHome {
 
 const Home: FC<IHome> = ({ ...props }: IHome): JSX.Element => {
     const [timeLeft, setTimeLeft] = useState(Constants.GAME_DURATION_MIN); //TODO İleride ayarlar kısmından süresi max min ayarlanacak.
+    const [trainingGame, setTrainingGame] = useState(false);
     const [question, setQuestion] = useState<Question>(getQuestion());
     const [stats, setStats] = useState({ correct: 0, total: 0 });
     const [selection, setSelection] = useState<{ answer: string; isCorrect: boolean } | null>(null);
@@ -36,15 +37,20 @@ const Home: FC<IHome> = ({ ...props }: IHome): JSX.Element => {
     }, [loadNextQuestion]);
 
     useEffect(() => {
-        if (timeLeft <= 0) {
+        if (timeLeft <= 0 && !trainingGame) {
             endGameAction();
             return;
         }
         const timerId = setInterval(() => {
-            setTimeLeft(t => t - 1);
+            if (game.gameStatus == GameStatus.PLAYING)
+                setTimeLeft(t => t - 1);
         }, 1000);
         return () => clearInterval(timerId);
     }, [timeLeft, stats]);
+
+    useEffect(() => {
+        gameBegin();
+    }, [game.gameStatus]);
 
     useEffect(() => {
         if (!loaded)
@@ -68,9 +74,8 @@ const Home: FC<IHome> = ({ ...props }: IHome): JSX.Element => {
     };
 
     const endGameAction = () => {
-        //props.setGameStatus(GameStatus.END);
+        props.setGameStatus(GameStatus.END);
     };
-
 
     const startGameAction = () => {
         props.setGameStatus(GameStatus.PLAYING);
@@ -79,13 +84,27 @@ const Home: FC<IHome> = ({ ...props }: IHome): JSX.Element => {
         loadNextQuestion();
     }
 
+    const startTrainingGameAction = () => {
+        setTrainingGame(true);
+        loadNextQuestion();
+        props.setPoint(0);
+        props.setGameStatus(GameStatus.TRAINING);
+    }
+
+    const exitTrainingAction = () => {
+        setTrainingGame(false);
+        setTimeLeft(Constants.GAME_DURATION_MIN);
+        props.setGameStatus(GameStatus.START);
+        props.setPoint(0);
+    }
+
     const gameBegin = (): JSX.Element => {
         if (game.gameStatus == GameStatus.START)
             return readyGame();
-        else if (game.gameStatus == GameStatus.PLAYING)
+        else if (game.gameStatus == GameStatus.PLAYING || game.gameStatus == GameStatus.TRAINING)
             return startGame();
         else
-            return endGame();  
+            return endGame();
     }
 
     const readyGame = (): JSX.Element => {
@@ -95,6 +114,7 @@ const Home: FC<IHome> = ({ ...props }: IHome): JSX.Element => {
                     <Flex mxAuto={true} align='center' justify='center' className='p-3 flex-col gap-4'>
                         <FlexType flexType='flex-auto' mxAuto={true} className='text-6xl text-white drop-shadow-md antialiased opacity-anim'>{Constants.APP_NAME}</FlexType>
                         <FlexType flexType='flex-auto'><Button color='secondary' onClick={() => startGameAction()}>{Constants.START_BUTTON}</Button></FlexType>
+                        <FlexType flexType='flex-auto'><Button color='secondary' onClick={() => startTrainingGameAction()}>{Constants.TRAINING_BUTTON}</Button></FlexType>
                     </Flex>
                 </Box>
             </>
@@ -110,11 +130,17 @@ const Home: FC<IHome> = ({ ...props }: IHome): JSX.Element => {
                             <Star className='w-6 h-6 text-secondary' />
                             <span className='text-2xl font-bold text-secondary'>{game.point}</span>
                         </div>
-                        <div className='w-full flex items-center bg-card/80 backdrop-blur-sm px-4 rounded-full shadow-md bg-white'>
-                            <Clock className='w-6 h-6 text-secondary' />
-                            <span className='text-2xl font-bold w-12 text-center'>{timeLeft}s</span>
-                            <Progress value={progress} className='sm:w-105' color='secondary' />
-                        </div>
+                        {game.gameStatus == GameStatus.PLAYING ?
+                            <div className='w-full flex items-center bg-card/80 backdrop-blur-sm px-4 rounded-full shadow-md bg-white'>
+                                <Clock className='w-6 h-6 text-secondary' />
+                                <span className='text-2xl font-bold w-12 text-center'>{timeLeft}s</span>
+                                 <Progress value={progress} className='sm:w-105' color='secondary' />
+                            </div>
+                            :
+                            <div className='flex items-center backdrop-blur-sm px-4 rounded-full shadow-md bg-white'>
+                                <LogOut onClick={()=> exitTrainingAction()} className='text-secondary'></LogOut>
+                            </div>
+                        }
                     </header>
                     <main>
                         <Card shadow='lg' className='bg-white overflow-hidden'>
@@ -151,8 +177,9 @@ const Home: FC<IHome> = ({ ...props }: IHome): JSX.Element => {
         );
     }
 
-    const endGame = ():JSX.Element => {
-        return(<></>);
+    const endGame = (): JSX.Element => {
+        //TODO Show result screen
+        return (<></>);
     }
 
     return (

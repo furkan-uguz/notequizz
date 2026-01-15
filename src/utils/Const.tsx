@@ -5,6 +5,7 @@ export enum ContentList {
 export enum GameStatus {
     START,
     PLAYING,
+    TRAINING,
     END,
 }
 const Constants = {
@@ -12,6 +13,7 @@ const Constants = {
     AUTH_USER: "USER",
     GUEST_USER: "GUEST",
     START_BUTTON: "START",
+    TRAINING_BUTTON: "TRAINING",
     GAME_DURATION_MIN:  60,
     GAME_DURATION_MAX: 300,
 }
