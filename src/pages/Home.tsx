@@ -9,7 +9,7 @@ import { StateType } from '../states/reducers';
 import { getQuestion, Question } from '../lib/Notes';
 import { Clock, Star } from 'lucide-react';
 import Flex, { FlexType } from '../components/Flex';
-import { Button, Card, Progress } from '@heroui/react';
+import { Button, Card, CardBody, Progress } from '@heroui/react';
 import { NoteStaff } from '../components/NoteStaff';
 import { cn } from '../lib/utils';
 
@@ -68,7 +68,7 @@ const Home: FC<IHome> = ({ ...props }: IHome): JSX.Element => {
     };
 
     const endGameAction = () => {
-        props.setGameStatus(GameStatus.END);
+        //props.setGameStatus(GameStatus.END);
     };
 
 
@@ -103,22 +103,24 @@ const Home: FC<IHome> = ({ ...props }: IHome): JSX.Element => {
 
     const startGame = (): JSX.Element => {
         return (
-            <div className='relative flex flex-col items-center justify-center min-h-screen w-svh p-4 overflow-hidden'>
+            <div className='relative flex flex-col items-center justify-center min-h-screen w-svw p-4'>
                 <div className='z-10 w-full max-w-2xl mx-auto flex flex-col gap-8'>
-                    <header className='flex sm:flex-row justify-between items-center gap-4'>
-                        <div className='flex items-center gap-3 bg-card/80 backdrop-blur-sm p-2 px-4 rounded-full shadow-md bg-white'>
+                    <header className='flex flex-row justify-between gap-1'>
+                        <div className='flex items-center gap-2 p-2 px-4 rounded-full shadow-md bg-white'>
                             <Star className='w-6 h-6 text-secondary' />
                             <span className='text-2xl font-bold text-secondary'>{game.point}</span>
                         </div>
-                        <div className='w-full sm:w-auto flex items-center gap-3 bg-card/80 backdrop-blur-sm p-2 px-4 rounded-full shadow-md bg-white'>
+                        <div className='w-full flex items-center bg-card/80 backdrop-blur-sm px-4 rounded-full shadow-md bg-white'>
                             <Clock className='w-6 h-6 text-secondary' />
                             <span className='text-2xl font-bold w-12 text-center'>{timeLeft}s</span>
-                            <Progress value={progress} className='w-32' color='secondary' />
+                            <Progress value={progress} className='sm:w-105' color='secondary' />
                         </div>
                     </header>
                     <main>
-                        <Card className="p-8 bg-card/80 backdrop-blur-sm shadow-xl bg-white">
-                            <NoteStaff note={question.correctNote} />
+                        <Card shadow='lg' className='bg-white'>
+                            <CardBody>
+                                <NoteStaff note={question.correctNote} />
+                            </CardBody>
                         </Card>
                     </main>
                     <footer className="grid grid-cols-2 lg:grid-cols-4 gap-4">

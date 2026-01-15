@@ -46,7 +46,7 @@ const Background = ({ ...props }: IBackground) => {
 
     return (
         <>
-            <div className='main-bg-video main-bg-opacity opacity-anim select-none' ref={mainVideoRef}>
+            <div className='main-bg-video main-bg-opacity opacity-anim select-none overflow-hidden' ref={mainVideoRef}>
                 <Flex direction='col' mxAuto={true} align='center' justify='center' className='h-screen'>
                     <Flex>{props.children}</Flex>
                 </Flex>
