@@ -6,7 +6,6 @@ export interface contentState extends state {
     isVideoLoaded: boolean;
     isFontLoaded: boolean;
     isMusicLoaded: boolean;
-    isImageLoaded: boolean;
     isFingerPrintInited: boolean;
     isLoading: boolean;
     loadingBar: number;
@@ -18,7 +17,6 @@ export const initialize: contentState = {
     isInit: false,
     isVideoLoaded: false,
     isMusicLoaded: false,
-    isImageLoaded: false,
     isFontLoaded: false,
     isFingerPrintInited: false,
     isLoading: true,
@@ -48,9 +46,6 @@ const contentReducer = (state: contentState = initialize, action: Action) => {
             break;
         case ActionTypes.CONTENT_SET_VIDEO:
             newState.backgroundVideo = action.payload.backgroundVideo;
-            break;
-        case ActionTypes.CONTENT_IMAGE_LOADING:
-            newState.isImageLoaded = action.payload.isImageLoaded;
             break;
         case ActionTypes.CONTENT_MUSIC_LOADING:
             newState.isMusicLoaded = action.payload.isMusicLoaded;

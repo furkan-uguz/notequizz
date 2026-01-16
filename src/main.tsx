@@ -61,7 +61,8 @@ const App: FC<IMain> = ({ ...props }: IMain): JSX.Element => {
 
   const handleLoading = () => {
     if (!componentsInit && !content.isLoading && !game.isLoading) {// Add here authorization flag
-      setComponentsInit(true);
+      if (content.isFingerPrintInited && content.isFontLoaded && content.isMusicLoaded && content.isVideoLoaded)
+        setComponentsInit(true);
       console.log("Components ready");
     }
   }
