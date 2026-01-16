@@ -14,7 +14,6 @@ import { setGameLoading } from './states/actions/gameActions';
 import { setFingerprintInitStatus, setVideoLoading, setFontLoading, setVideoContent, setMusicContent, setMusicLoading } from './states/actions/contentActions';
 import Constant, { ContentList } from './utils/Const';
 import Loading from './pages/Loading';
-import './css/index.css';
 import { HeroUIProvider } from '@heroui/react';
 
 interface IMain {
@@ -98,6 +97,7 @@ const App: FC<IMain> = ({ ...props }: IMain): JSX.Element => {
         }),
       };
       loader.add(options).load((_loader, resource) => {
+        console.log("Loader load video");
         props.setVideoContent(resource[ContentList.BG_VIDEO_SRC]?.data);
         props.setVideoLoading(true);
       });
@@ -119,7 +119,6 @@ const App: FC<IMain> = ({ ...props }: IMain): JSX.Element => {
       }
 
       loader.add(options).load((_loader, resource) => {
-        console.log(_loader, resource);
         props.setMusicContent(resource[ContentList.BG_THEME_MUSIC]?.data);
         props.setMusicLoading(true);
       });
