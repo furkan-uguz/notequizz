@@ -14,8 +14,14 @@ export default defineConfig(({ mode }) => {
       tailwindcss()
     ],
     build: {
-      target: 'esnext', // Veya 'chrome111' gibi modern bir sürüm
-      cssTarget: 'chrome111' // CSS Nesting'in yerel desteklendiği sürüm
+      cssMinify: 'lightningcss', // esbuild yerine lightningcss kullan
+      target: 'chrome111' // CSS Nesting'i bozmadan bırakması için
+    },
+    css: {
+      transformer: 'lightningcss',
+      lightningcss: {
+        targets: { chrome: 111 }
+      }
     }
   }
 });
