@@ -20,9 +20,7 @@ interface IHome {
 
 const Home: FC<IHome> = ({ ...props }: IHome): JSX.Element => {
     const [timeLeft, setTimeLeft] = useState(Constants.GAME_DURATION_MIN); //TODO İleride ayarlar kısmından süresi max min ayarlanacak.
-    const [trainingGame, setTrainingGame] = useState(false);
     const [question, setQuestion] = useState<Question>(getQuestion());
-    const [stats, setStats] = useState({ correct: 0, total: 0 });
     const [selection, setSelection] = useState<{ answer: string; isCorrect: boolean } | null>(null);
     const [loaded, setLoaded] = useState(false);
     const game = useSelector((state: StateType) => state.game);
@@ -37,7 +35,7 @@ const Home: FC<IHome> = ({ ...props }: IHome): JSX.Element => {
     }, [loadNextQuestion]);
 
     useEffect(() => {
-        if (timeLeft <= 0 && !trainingGame) {
+        if (timeLeft <= 0 && game.gameStatus != GameStatus.EXERCISING) {
             endGameAction();
             return;
         }
@@ -46,7 +44,7 @@ const Home: FC<IHome> = ({ ...props }: IHome): JSX.Element => {
                 setTimeLeft(t => t - 1);
         }, 1000);
         return () => clearInterval(timerId);
-    }, [timeLeft, stats]);
+    }, [timeLeft]);
 
     useEffect(() => {
         gameBegin();
@@ -61,12 +59,13 @@ const Home: FC<IHome> = ({ ...props }: IHome): JSX.Element => {
         if (selection || !question) return;
 
         const isCorrect = answer === question.correctNote.solfege;
+        let point = 0;
         setSelection({ answer, isCorrect });
 
         if (isCorrect) {
-            props.setPoint(game.point + 5);
+            point = Constants.GAINED_POINT;
         }
-        setStats(s => ({ correct: s.correct + (isCorrect ? 1 : 0), total: s.total + 1 }));
+        props.setPoint(game.point + point);
 
         setTimeout(() => {
             loadNextQuestion();
@@ -84,15 +83,13 @@ const Home: FC<IHome> = ({ ...props }: IHome): JSX.Element => {
         loadNextQuestion();
     }
 
-    const startTrainingGameAction = () => {
-        setTrainingGame(true);
+    const startExerciseModeAction = () => {
         loadNextQuestion();
         props.setPoint(0);
-        props.setGameStatus(GameStatus.TRAINING);
+        props.setGameStatus(GameStatus.EXERCISING);
     }
 
     const exitTrainingAction = () => {
-        setTrainingGame(false);
         setTimeLeft(Constants.GAME_DURATION_MIN);
         props.setGameStatus(GameStatus.START);
         props.setPoint(0);
@@ -101,7 +98,7 @@ const Home: FC<IHome> = ({ ...props }: IHome): JSX.Element => {
     const gameBegin = (): JSX.Element => {
         if (game.gameStatus == GameStatus.START)
             return readyGame();
-        else if (game.gameStatus == GameStatus.PLAYING || game.gameStatus == GameStatus.TRAINING)
+        else if (game.gameStatus == GameStatus.PLAYING || game.gameStatus == GameStatus.EXERCISING)
             return startGame();
         else
             return endGame();
@@ -112,9 +109,9 @@ const Home: FC<IHome> = ({ ...props }: IHome): JSX.Element => {
             <>
                 <Box size={'sm'} mxAuto={true}>
                     <Flex mxAuto={true} align='center' justify='center' className='p-3 flex-col gap-4'>
-                        <FlexType flexType='flex-auto' mxAuto={true} className='text-6xl text-white drop-shadow-md antialiased opacity-anim'>{Constants.APP_NAME}</FlexType>
-                        <FlexType flexType='flex-auto'><Button color='secondary' onClick={() => startGameAction()}>{Constants.START_BUTTON}</Button></FlexType>
-                        <FlexType flexType='flex-auto'><Button color='secondary' onClick={() => startTrainingGameAction()}>{Constants.TRAINING_BUTTON}</Button></FlexType>
+                        <FlexType flexType='flex-auto' mxAuto={true} className='text-6xl text-white drop-shadow-md antialiased animate-bounce'>{Constants.APP_NAME}</FlexType>
+                        <FlexType flexType='flex-auto' className='antialiased opacity-anim'><Button color='secondary' onClick={() => startGameAction()} className='text-2xl hover:scale-105'>{Constants.START_BUTTON}</Button></FlexType>
+                        <FlexType flexType='flex-auto' className='antialiased opacity-anim'><Button color='secondary' onClick={() => startExerciseModeAction()} className='text-2xl hover:scale-105'>{Constants.EXERCISE_BUTTON}</Button></FlexType>
                     </Flex>
                 </Box>
             </>
@@ -137,7 +134,7 @@ const Home: FC<IHome> = ({ ...props }: IHome): JSX.Element => {
                                  <Progress value={progress} className='sm:w-105' color='secondary' />
                             </div>
                             :
-                            <div className='flex items-center backdrop-blur-sm px-4 rounded-full shadow-md bg-white'>
+                            <div className='flex items-center backdrop-blur-sm px-4 rounded-full shadow-md bg-white hover:scale-105 transform cursor-pointer'>
                                 <LogOut onClick={()=> exitTrainingAction()} className='text-secondary'></LogOut>
                             </div>
                         }

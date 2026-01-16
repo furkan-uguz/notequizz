@@ -8,6 +8,7 @@ export interface gameState extends state {
     gameStatus: GameStatus,
     point: number,
     correctAnswer: number,
+    falseAnswer: number
 }
 
 export const initialize: gameState = {
@@ -16,6 +17,7 @@ export const initialize: gameState = {
     gameStatus: GameStatus.START,
     point: 0,
     correctAnswer: 0,
+    falseAnswer: 0,
 }
 
 const authReducer = (state: gameState = initialize, action: Action) => {
@@ -28,6 +30,7 @@ const authReducer = (state: gameState = initialize, action: Action) => {
         case ActionTypes.GAME_SET_USER_POINT:
             newState.point = action.payload.point;
             newState.correctAnswer += action.payload.point > 0 ? 1 : 0;
+            newState.falseAnswer += action.payload.point == 0 ? 1 : 0;
             break;
         case ActionTypes.GAME_CHANGE_STATUS:
             newState.gameStatus = action.payload.gameStatus;
