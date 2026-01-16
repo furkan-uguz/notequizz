@@ -7,11 +7,11 @@ export type Note = {
 
 // Notes on the treble clef staff
 export const notes: Note[] = [
-  { name: 'E', solfege: 'Mi', octave: 4, position: 0 }, // Line 1
-  { name: 'F', solfege: 'Fa', octave: 4, position: 1 }, // Space 1
-  { name: 'G', solfege: 'Sol', octave: 4, position: 2 }, // Line 2
-  { name: 'A', solfege: 'La', octave: 4, position: 3 }, // Space 2
-  { name: 'B', solfege: 'Si', octave: 4, position: 4 }, // Line 3
+  { name: 'E', solfege: 'Mi', octave: 4, position: 0 }, // Line 1 calc(-0.575rem)
+  { name: 'F', solfege: 'Fa', octave: 4, position: 1 }, // Space 1 calc(0.025rem) + 0.6
+  { name: 'G', solfege: 'Sol', octave: 4, position: 2 }, // Line 2 calc(0.525rem) + 0.5
+  { name: 'A', solfege: 'La', octave: 4, position: 3 }, // Space 2 calc(1.025rem) + 0.5
+  { name: 'B', solfege: 'Si', octave: 4, position: 4 }, // Line 3 calc(1.525rem)  + 0.5
   { name: 'C', solfege: 'Do', octave: 5, position: 5 }, // Space 3
   { name: 'D', solfege: 'Re', octave: 5, position: 6 }, // Line 4
   { name: 'E', solfege: 'Mi', octave: 5, position: 7 }, // Space 4

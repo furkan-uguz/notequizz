@@ -16,7 +16,7 @@ export function NoteStaff({ note }: NoteStaffProps) {
     const notePositionStyle = {
         // 0.875rem = 14px, is the height of a space.
         // 4 is the top line, so we calculate from there.
-        bottom: `calc(4 * 0.875rem - ${note.position} * 0.875rem)`,
+        bottom: `calc(${note.position} * 0.500rem + (-0.575rem))`,
     };
 
     console.log(note);
@@ -27,7 +27,7 @@ export function NoteStaff({ note }: NoteStaffProps) {
             </div>
             <div className="relative pr-10 w-full">
                 {/* Staff lines */}
-                <div className="space-y-4 relative">
+                <div className="space-y-3.5 relative">
                     <div key={0} className="h-0.5 bg-secondary" />
                     <div key={1} className="h-0.5 bg-secondary" />
                     <div key={2} className="h-0.5 bg-secondary" />
