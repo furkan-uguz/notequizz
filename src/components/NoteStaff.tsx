@@ -27,10 +27,12 @@ export function NoteStaff({ note }: NoteStaffProps) {
             </div>
             <div className="relative pr-10 w-full">
                 {/* Staff lines */}
-                <div className="space-y-3.5 relative">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                        <div key={i} className="h-0.5 bg-secondary" />
-                    ))}
+                <div className="space-y-4 relative">
+                    <div key={0} className="h-0.5 bg-secondary" />
+                    <div key={1} className="h-0.5 bg-secondary" />
+                    <div key={2} className="h-0.5 bg-secondary" />
+                    <div key={3} className="h-0.5 bg-secondary" />
+                    <div key={4} className="h-0.5 bg-secondary" />
                 </div>
                 {/* Note */}
                 <div className="absolute right-1/2 sm:right-1/3 transform transition-all duration-300" style={notePositionStyle}>
