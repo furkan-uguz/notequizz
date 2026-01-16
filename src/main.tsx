@@ -54,22 +54,21 @@ const App: FC<IMain> = ({ ...props }: IMain): JSX.Element => {
     setAuthLevel();
     loadFonts();
     loadVideoContent();
-    loadImages();
     loadMusics();
     init = true;
   }
 
   const handleLoading = () => {
     if (!componentsInit && !content.isLoading && !game.isLoading) {// Add here authorization flag
-      if (content.isFingerPrintInited && content.isFontLoaded && content.isMusicLoaded && content.isVideoLoaded)
+      if (content.isFingerPrintInited && content.isFontLoaded && content.isMusicLoaded && content.isVideoLoaded) {
         setComponentsInit(true);
-      console.log("Components ready");
+        console.log("Components ready");
+      }
     }
   }
 
   const setAuthLevel = () => {
     if (game.isLoading) {
-      console.log("Auth Level");
       buildAuthenticatedUser(Constant.GUEST_USER, []);
       props.setGameLoading(false);
     }
@@ -98,15 +97,10 @@ const App: FC<IMain> = ({ ...props }: IMain): JSX.Element => {
         }),
       };
       loader.add(options).load((_loader, resource) => {
-        console.log("Loader load video");
         props.setVideoContent(resource[ContentList.BG_VIDEO_SRC]?.data);
         props.setVideoLoading(true);
       });
     }
-  }
-
-  const loadImages = () => {
-    
   }
 
   const loadMusics = () => {
