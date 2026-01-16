@@ -12,4 +12,7 @@ export default {
   },
   darkMode: "class",
   plugins: [heroui()],
+  safelist: [
+    'space-y-4'
+  ]
 };
