@@ -13,5 +13,9 @@ export default defineConfig(({ mode }) => {
       react(),
       tailwindcss()
     ],
+    build: {
+      target: 'esnext', // Veya 'chrome111' gibi modern bir sürüm
+      cssTarget: 'chrome111' // CSS Nesting'in yerel desteklendiği sürüm
+    }
   }
 });
