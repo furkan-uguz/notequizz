@@ -100,10 +100,10 @@ const App: FC<IMain> = ({ ...props }: IMain): JSX.Element => {
         xhrType: 'blob',
       };
       loader.add(options).load((_loader, resource) => {
-        if (_loader.onError) {
-        console.error("Video not loaded.");
-        return;
-      }
+        loader.onError.add(() => {
+          console.log("Video is not loaded.");
+        })
+
         props.setVideoContent(resource[ContentList.BG_VIDEO_SRC]?.data);
         props.setVideoLoading(true);
       });
