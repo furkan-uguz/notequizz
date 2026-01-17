@@ -114,7 +114,9 @@ const App: FC<IMain> = ({ ...props }: IMain): JSX.Element => {
     if (!content.isMusicLoaded) {
       const options: IAddOptions = {
         url: ContentList.BG_THEME_MUSIC,
-        
+        crossOrigin:'anonymous',
+        loadType:3,
+        xhrType: 'blob',
         parentResource: new Resource("resource", {
           url: './assets',
         }),
