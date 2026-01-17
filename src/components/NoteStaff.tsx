@@ -7,25 +7,21 @@ const TrebleClef = (_props:React.SVGProps<SVGSVGElement>) => (
     </svg>
 );
 
-
 type NoteStaffProps = {
     note: Note;
 };
 
 export function NoteStaff({ note }: NoteStaffProps) {
     const notePositionStyle = {
-        // 0.875rem = 14px, is the height of a space.
-        // 4 is the top line, so we calculate from there.
         bottom: `calc(${note.position} * 0.500rem + (-0.575rem))`,
     };
 
-    console.log(note);
     return (
         <div className="relative w-full h-full max-w-md mx-auto flex items-center gap-1">
             <div className="flex items-center w-25 h-38">
                 <TrebleClef className="h-28 w-auto text-foreground" />
             </div>
-            <div className="relative pr-10 w-full">
+            <div className="relative w-full">
                 {/* Staff lines */}
                 <div className="space-y-3.5 relative">
                     <div key={0} className="h-0.5 bg-secondary" />

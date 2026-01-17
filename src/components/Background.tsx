@@ -9,7 +9,6 @@ interface IBackground extends React.PropsWithChildren {
 }
 
 const Background = ({ ...props }: IBackground) => {
-
     const content = useSelector((state: StateType) => state.content);
     const mainVideoRef = useRef<HTMLDivElement>(null);
     const mainThemeSoundRef = useRef<HTMLDivElement>(null);
@@ -37,10 +36,6 @@ const Background = ({ ...props }: IBackground) => {
         content.backgroundMusic!.volume = 0.5;
         content.backgroundMusic!.play();
         mainThemeSoundRef.current!.append(content.backgroundMusic!);
-        document.body.addEventListener("mousemove", function () {
-            //
-            content.backgroundMusic!.play();
-        })
         init = true;
     }
 

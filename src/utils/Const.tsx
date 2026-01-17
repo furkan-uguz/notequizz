@@ -14,6 +14,8 @@ const Constants = {
     GUEST_USER: "GUEST",
     START_BUTTON: "Start Game",
     EXERCISE_BUTTON: "Exercise Mode",
+    SETTINGS_BUTTON: "Settings",
+    HIGH_SCORES_BUTTON: "High Scores",
     GAME_DURATION_MIN:  60,
     GAME_DURATION_MAX: 300,
     GAINED_POINT: 1,
