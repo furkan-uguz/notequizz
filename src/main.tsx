@@ -95,8 +95,15 @@ const App: FC<IMain> = ({ ...props }: IMain): JSX.Element => {
         parentResource: new Resource("resource", {
           url: './assets'
         }),
+        crossOrigin:'anonymous',
+        loadType:2,
+        xhrType: 'blob',
       };
       loader.add(options).load((_loader, resource) => {
+        if (_loader.onError) {
+        console.error("Video not loaded.");
+        return;
+      }
         props.setVideoContent(resource[ContentList.BG_VIDEO_SRC]?.data);
         props.setVideoLoading(true);
       });
