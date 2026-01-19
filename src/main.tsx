@@ -90,12 +90,9 @@ const App: FC<IMain> = ({ ...props }: IMain): JSX.Element => {
 
   const loadVideoContent = () => {
     if (!content.isVideoLoaded) {
-      console.log("Video loader proccess starting...");
       const options: IAddOptions = {
+        baseUrl:ContentList.CLOUDINARY_URL,
         url: ContentList.BG_VIDEO_SRC,
-        parentResource: new Resource("resource", {
-          url: './assets'
-        }),
         crossOrigin: 'anonymous',
         loadType: 2,
         xhrType: 'blob',
