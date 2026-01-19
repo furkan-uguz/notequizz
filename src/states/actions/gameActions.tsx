@@ -1,7 +1,7 @@
 import { Dispatch } from 'redux';
 import Action from '../../utils/Action';
 import ActionTypes from '../../utils/Types';
-import { gameState, initialize } from '../reducers/gameReducer';
+import { answerState, gameState, initialize } from '../reducers/gameReducer';
 import { dispatcher } from '..';
 import { GameStatus } from '../../utils/Const';
 
@@ -13,11 +13,14 @@ export const setGameLoading = (state: boolean) => (dispatch: Dispatch<Action>) =
     dispatcher(ActionTypes.GAME_LOADING, payload, dispatch);
 }
 
-export const setPoint = (state: number) => (dispatch: Dispatch<Action>) => {
-    const payload: gameState = initialize;
-    payload.point = state;
+export const setPoint = (answer: answerState) => (dispatch: Dispatch<Action>) => {
+    dispatcher(ActionTypes.GAME_SET_USER_POINT, answer, dispatch);
+}
 
-    dispatcher(ActionTypes.GAME_SET_USER_POINT, payload, dispatch);
+export const setResetGame = () => (dispatch: Dispatch<Action>) => {
+    const payload: gameState = initialize;
+    
+    dispatcher(ActionTypes.GAME_REFRESH, payload, dispatch);
 }
 
 export const setGameStatus = (status: GameStatus) => (dispatch: Dispatch<Action>) => {

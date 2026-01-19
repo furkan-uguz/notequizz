@@ -17,9 +17,18 @@ const Constants = {
     EXERCISE_BUTTON: "Exercise Mode",
     SETTINGS_BUTTON: "Settings",
     HIGH_SCORES_BUTTON: "High Scores",
+    PLAY_AGAIN_BUTTON: "Play Again",
+    MAIN_MENU_BUTTON: "Main Menu",
+    STATS_HEADER: "Here The Stats",
+    GAME_OVER_HEADER: "Game Over",
+    POINTS: "Point(s)",
+    CORRECT_ANSWER: "Correct(s)",
+    WRONG_ANSWER: "Wrong(s)",
     GAME_DURATION_MIN:  60,
     GAME_DURATION_MAX: 300,
     GAINED_POINT: 1,
+    RESET_POINT: -1,
+    DEFAULT_POINT: 0,
 }
 
 export default Constants;

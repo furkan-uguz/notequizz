@@ -1,14 +1,20 @@
 import { state } from '.';
 import Action from '../../utils/Action';
-import { GameStatus } from '../../utils/Const';
+import Constants, { GameStatus } from '../../utils/Const';
 import ActionTypes from '../../utils/Types';
 
 export interface gameState extends state {
     isLoading: boolean | false,
     gameStatus: GameStatus,
     point: number,
-    correctAnswer: number,
-    falseAnswer: number
+    correct: number,
+    wrong: number,
+    total: number
+}
+
+export interface answerState {
+    point: number,
+    type: number
 }
 
 export const initialize: gameState = {
@@ -16,8 +22,19 @@ export const initialize: gameState = {
     isLoading: true,
     gameStatus: GameStatus.START,
     point: 0,
-    correctAnswer: 0,
-    falseAnswer: 0,
+    correct: 0,
+    wrong: 0,
+    total: 0
+}
+
+const defaultInit: gameState = {
+    isInit: false,
+    isLoading: true,
+    gameStatus: GameStatus.START,
+    point: Constants.DEFAULT_POINT,
+    correct: 0,
+    wrong: 0,
+    total: 0
 }
 
 const authReducer = (state: gameState = initialize, action: Action) => {
@@ -28,15 +45,16 @@ const authReducer = (state: gameState = initialize, action: Action) => {
             newState.isLoading = action.payload.isLoading;
             break;
         case ActionTypes.GAME_SET_USER_POINT:
-            newState.point = action.payload.point;
-            newState.correctAnswer += action.payload.point > 0 ? 1 : 0;
-            newState.falseAnswer += action.payload.point == 0 ? 1 : 0;
+            newState.point += action.payload.point;
+            newState.correct += action.payload.type == Constants.GAINED_POINT ? 1 : 0;
+            newState.wrong += action.payload.type == Constants.DEFAULT_POINT ? 1 : 0;
+            newState.total = newState.correct + newState.wrong;
             break;
         case ActionTypes.GAME_CHANGE_STATUS:
             newState.gameStatus = action.payload.gameStatus;
             break;
         case ActionTypes.GAME_REFRESH:
-            newState = { ...initialize };
+            newState = defaultInit;
             newState.isInit = true;
             break;
         default:
