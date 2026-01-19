@@ -49,7 +49,7 @@ const App: FC<IMain> = ({ ...props }: IMain): JSX.Element => {
   }, [content, game]);
 
   const initialize = () => {
-    console.log("Init");
+    console.log("Initialization started");
     initFingerPrint();
     setAuthLevel();
     loadFonts();
@@ -62,7 +62,7 @@ const App: FC<IMain> = ({ ...props }: IMain): JSX.Element => {
     if (!componentsInit && !content.isLoading && !game.isLoading) {// Add here authorization flag
       if (content.isFingerPrintInited && content.isFontLoaded && content.isMusicLoaded && content.isVideoLoaded) {
         setComponentsInit(true);
-        console.log("Components ready");
+        console.log("Components ready!");
       }
     }
   }
@@ -90,20 +90,35 @@ const App: FC<IMain> = ({ ...props }: IMain): JSX.Element => {
 
   const loadVideoContent = () => {
     if (!content.isVideoLoaded) {
+      console.log("Video loader proccess starting...");
       const options: IAddOptions = {
         url: ContentList.BG_VIDEO_SRC,
         parentResource: new Resource("resource", {
           url: './assets'
         }),
-        crossOrigin:'anonymous',
-        loadType:2,
+        crossOrigin: 'anonymous',
+        loadType: 2,
         xhrType: 'blob',
       };
-      loader.add(options).load((_loader, resource) => {
-        loader.onError.add(() => {
-          console.log("Video is not loaded.");
-        })
 
+      loader.onError.add(() => {
+        console.log("Video is not loaded.");
+      });
+
+      loader.onStart.add(() => {
+        console.log("Video loading process");
+      });
+
+      loader.use((resource, next) => {
+        // Eğer iOS mime-type'ı boş bırakırsa manuel ata
+        if (resource.data instanceof Blob && !resource.data.type) {
+          resource.data = resource.data.slice(0, resource.data.size, 'video/mp4');
+        }
+        next();
+      });
+
+      loader.add(options).load((_loader, resource) => {
+        console.log("Video loading started", resource[ContentList.BG_VIDEO_SRC]);
         props.setVideoContent(resource[ContentList.BG_VIDEO_SRC]?.data);
         props.setVideoLoading(true);
       });
@@ -114,8 +129,8 @@ const App: FC<IMain> = ({ ...props }: IMain): JSX.Element => {
     if (!content.isMusicLoaded) {
       const options: IAddOptions = {
         url: ContentList.BG_THEME_MUSIC,
-        crossOrigin:'anonymous',
-        loadType:3,
+        crossOrigin: 'anonymous',
+        loadType: 3,
         xhrType: 'blob',
         parentResource: new Resource("resource", {
           url: './assets',
@@ -164,7 +179,7 @@ const App: FC<IMain> = ({ ...props }: IMain): JSX.Element => {
     setAuthenticatedUser(authUser);
   }
 
-  return (!componentsInit ? <><Loading/></> :
+  return (!componentsInit ? <><Loading /></> :
     <>
       <HelmetProvider>
         <AuthContext.Provider value={authenticatedUser!}>
