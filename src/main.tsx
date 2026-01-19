@@ -109,6 +109,10 @@ const App: FC<IMain> = ({ ...props }: IMain): JSX.Element => {
         console.log("Video loading process");
       });
 
+      loader.onProgress.add((loader) => {
+        console.log("Video loading", loader.progress);
+      });
+
       loader.use((resource, next) => {
         // Eğer iOS mime-type'ı boş bırakırsa manuel ata
         if (resource.data instanceof Blob && !resource.data.type) {
