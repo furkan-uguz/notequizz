@@ -95,11 +95,11 @@ const Home: FC<IHome> = ({ ...props }: IHome): JSX.Element => {
     }
 
     const playAgainAction = () => {
-
+        startGameAction();
     }
 
     const settingsAction = () => {
-
+        
     }
 
     const highScoresAction = () => {
