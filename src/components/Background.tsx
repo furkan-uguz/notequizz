@@ -25,7 +25,9 @@ const Background = ({ ...props }: IBackground) => {
         content.backgroundVideo!.className = 'bg-video';
         content.backgroundVideo!.autoplay = true;
         content.backgroundVideo!.muted = true;
+        content.backgroundVideo!.playsInline = true;
         content.backgroundVideo!.loop = true;
+        content.backgroundVideo!.preload = 'auto';
         content.backgroundVideo!.play();
         mainVideoRef.current!.append(content.backgroundVideo!);
 

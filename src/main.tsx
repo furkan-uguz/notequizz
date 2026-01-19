@@ -101,18 +101,6 @@ const App: FC<IMain> = ({ ...props }: IMain): JSX.Element => {
         xhrType: 'blob',
       };
 
-      loader.onError.add(() => {
-        console.log("Video is not loaded.");
-      });
-
-      loader.onStart.add(() => {
-        console.log("Video loading process");
-      });
-
-      loader.onProgress.add((loader) => {
-        console.log("Video loading", loader.progress);
-      });
-
       loader.use((resource, next) => {
         // Eğer iOS mime-type'ı boş bırakırsa manuel ata
         if (resource.data instanceof Blob && !resource.data.type) {
@@ -122,7 +110,6 @@ const App: FC<IMain> = ({ ...props }: IMain): JSX.Element => {
       });
 
       loader.add(options).load((_loader, resource) => {
-        console.log("Video loading started", resource[ContentList.BG_VIDEO_SRC]);
         props.setVideoContent(resource[ContentList.BG_VIDEO_SRC]?.data);
         props.setVideoLoading(true);
       });

@@ -145,8 +145,8 @@ const Home: FC<IHome> = ({ ...props }: IHome): JSX.Element => {
                             </div>
                             : <></>
                         }
-                        <div className='flex items-center backdrop-blur-sm px-4 rounded-full shadow-md bg-white hover:scale-105 transform cursor-pointer'>
-                            <LogOut onClick={() => exitGameAction()} className='text-secondary'></LogOut>
+                        <div onClick={() => exitGameAction()} className='flex items-center backdrop-blur-sm px-4 rounded-full shadow-md bg-white hover:scale-105 transform cursor-pointer'>
+                            <LogOut className='text-secondary'></LogOut>
                         </div>
                     </header>
                     <main>
