@@ -15,5 +15,5 @@ export enum ActionTypes {
     GAME_SET_USER_POINT = "GAME_SET_USER_POINT",
     GAME_REFRESH = "GAME_REFRESH",
     GAME_CHANGE_STATUS = "GAME_CHANGE_STATUS",
-};
+}
 export default ActionTypes;

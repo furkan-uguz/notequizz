@@ -15,14 +15,15 @@ const containerSize = {
 
 const Box: FC<IBoxInterface> = (props: IBoxInterface) => {
 
-    let size = props.size !== undefined ? containerSize[props.size] : 'container';
-    let mxAuto = props.mxAuto ? ' mx-auto' : '';
-    let classN = props.className !== undefined ? ' ' + props.className : '';
-    let clazz = size + mxAuto + classN;
+    const size = props.size !== undefined ? containerSize[props.size] : 'container';
+    const mxAuto = props.mxAuto ? ' mx-auto' : '';
+    const classN = props.className !== undefined ? ' ' + props.className : '';
+    const clazz = size + mxAuto + classN;
     return (
         <div className={clazz} 
             onTransitionEnd={props.onTransitionEnd} 
-            onAnimationEnd={props.onAnimationEnd}>
+            onAnimationEnd={props.onAnimationEnd}
+            onClick={props.onClick}>
             {props.children}
         </div>
     );

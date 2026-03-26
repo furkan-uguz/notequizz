@@ -3,12 +3,14 @@ export enum ContentList {
     BG_VIDEO_SRC = "note_background_i0avb9.mp4",
     BG_THEME_MUSIC = "/theme.ogg"
 }
+
 export enum GameStatus {
     START,
     PLAYING,
     EXERCISING,
     END,
 }
+
 const Constants = {
     APP_NAME: "NoteQuizz",
     AUTH_USER: "USER",
@@ -21,6 +23,7 @@ const Constants = {
     MAIN_MENU_BUTTON: "Main Menu",
     STATS_HEADER: "Here The Stats",
     GAME_OVER_HEADER: "Game Over",
+    CONTINUE_BUTTON: "Click To Continue",
     POINTS: "Point(s)",
     CORRECT_ANSWER: "Correct(s)",
     WRONG_ANSWER: "Wrong(s)",

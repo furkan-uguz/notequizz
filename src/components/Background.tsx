@@ -5,41 +5,40 @@ import { StateType } from '../states/reducers';
 import Flex from './Flex';
 
 interface IBackground extends React.PropsWithChildren {
-    setVideoLoading: Function;
+    setVideoLoading: (loading: boolean) => void;
 }
 
 const Background = ({ ...props }: IBackground) => {
     const content = useSelector((state: StateType) => state.content);
     const mainVideoRef = useRef<HTMLDivElement>(null);
     const mainThemeSoundRef = useRef<HTMLDivElement>(null);
-    let init = false;
+    const initRef = useRef(false);
 
     useEffect(() => {
-        if (!init) {
+        if (!initRef.current) {
+            const initialize = () => {
+                console.log("Background Initializing...");
+                content.backgroundVideo!.className = 'bg-video';
+                content.backgroundVideo!.autoplay = true;
+                content.backgroundVideo!.muted = true;
+                content.backgroundVideo!.playsInline = true;
+                content.backgroundVideo!.loop = true;
+                content.backgroundVideo!.preload = 'auto';
+                content.backgroundVideo!.play();
+                mainVideoRef.current!.append(content.backgroundVideo!);
+
+                content.backgroundMusic!.autoplay = true;
+                content.backgroundMusic!.muted = false;
+                content.backgroundMusic!.loop = true;
+                content.backgroundMusic!.controls = false;
+                content.backgroundMusic!.volume = 0.5;
+                content.backgroundMusic!.play();
+                mainThemeSoundRef.current!.append(content.backgroundMusic!);
+            }
             initialize();
+            initRef.current = true;
         }
-    }, []);
-
-    const initialize = () => {
-        console.log("Background Initializing...");
-        content.backgroundVideo!.className = 'bg-video';
-        content.backgroundVideo!.autoplay = true;
-        content.backgroundVideo!.muted = true;
-        content.backgroundVideo!.playsInline = true;
-        content.backgroundVideo!.loop = true;
-        content.backgroundVideo!.preload = 'auto';
-        content.backgroundVideo!.play();
-        mainVideoRef.current!.append(content.backgroundVideo!);
-
-        content.backgroundMusic!.autoplay = true;
-        content.backgroundMusic!.muted = false;
-        content.backgroundMusic!.loop = true;
-        content.backgroundMusic!.controls = false;
-        content.backgroundMusic!.volume = 0.5;
-        content.backgroundMusic!.play();
-        mainThemeSoundRef.current!.append(content.backgroundMusic!);
-        init = true;
-    }
+    }, [content]);
 
     return (
         <>
@@ -57,4 +56,6 @@ const Background = ({ ...props }: IBackground) => {
 const mapStateToProps = () => ({})
 const mapDispatchToProps = { setVideoLoading };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Background);
+const ConnectedBackground = connect(mapStateToProps, mapDispatchToProps)(Background);
+
+export default ConnectedBackground;

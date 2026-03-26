@@ -13,6 +13,11 @@ export default defineConfig(({ mode }) => {
       react(),
       tailwindcss()
     ],
+    server: {
+      watch: {
+        ignored: ['**/node_modules/**', '**/.git/**']
+      }
+    },
     build: {
       // Lightning CSS'in düzgün çalışması için target'ı netleştiriyoruz
       cssMinify: 'lightningcss',

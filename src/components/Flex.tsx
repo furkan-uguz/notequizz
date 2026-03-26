@@ -43,13 +43,13 @@ const justifyTypes = {
 }
 
 export const FlexType: FC<IFlexInterface> = (props: IFlexInterface) => {
-    let mxAuto = props.mxAuto ? ' mx-auto' : '';
-    let flexType = props.flexType !== undefined ? flexTypes[props.flexType] : 'flex-1';
-    let flexDirection = props.direction !== undefined ? flexDirections[props.direction] : '';
-    let align = props.align !== undefined ? alignTypes[props.align] : '';
-    let justify = props.justify !== undefined ? justifyTypes[props.justify] : '';
-    let classN = props.className !== undefined ? ' ' + props.className : '';
-    let clazz = flexType + flexDirection + align + justify + mxAuto + classN;
+    const mxAuto = props.mxAuto ? ' mx-auto' : '';
+    const flexType = props.flexType !== undefined ? flexTypes[props.flexType] : 'flex-1';
+    const flexDirection = props.direction !== undefined ? flexDirections[props.direction] : '';
+    const align = props.align !== undefined ? alignTypes[props.align] : '';
+    const justify = props.justify !== undefined ? justifyTypes[props.justify] : '';
+    const classN = props.className !== undefined ? ' ' + props.className : '';
+    const clazz = flexType + flexDirection + align + justify + mxAuto + classN;
 
     return (
         <div className={clazz}>
@@ -59,12 +59,12 @@ export const FlexType: FC<IFlexInterface> = (props: IFlexInterface) => {
 }
 
 const Flex: FC<IFlexInterface> = (props: IFlexInterface) => {
-    let mxAuto = props.mxAuto ? ' mx-auto' : '';
-    let flexDirection = props.direction !== undefined ? flexDirections[props.direction] : '';
-    let align = props.align !== undefined ? alignTypes[props.align] : '';
-    let justify = props.justify !== undefined ? justifyTypes[props.justify] : '';
-    let classN = props.className !== undefined ? ' ' + props.className : '';
-    let clazz = 'flex' + flexDirection + align + justify + mxAuto + classN;
+    const mxAuto = props.mxAuto ? ' mx-auto' : '';
+    const flexDirection = props.direction !== undefined ? flexDirections[props.direction] : '';
+    const align = props.align !== undefined ? alignTypes[props.align] : '';
+    const justify = props.justify !== undefined ? justifyTypes[props.justify] : '';
+    const classN = props.className !== undefined ? ' ' + props.className : '';
+    const clazz = 'flex' + flexDirection + align + justify + mxAuto + classN;
 
     return (
         <div className={clazz}>
