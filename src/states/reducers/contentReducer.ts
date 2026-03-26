@@ -26,7 +26,7 @@ export const initialize: contentState = {
 }
 
 const contentReducer = (state: contentState = initialize, action: Action) => {
-    var newState: contentState = { ...state };
+    let newState: contentState = { ...state };
     newState.isInit = true;
     switch (action.type) {
         case ActionTypes.CONTENT_LOADING:

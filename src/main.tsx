@@ -16,17 +16,19 @@ import Constant, { ContentList } from './utils/Const';
 import Loading from './pages/Loading';
 import { HeroUIProvider } from '@heroui/react';
 
-interface IMain {
-  setGameLoading: Function
-  setVideoLoading: Function
-  setFontLoading: Function
-  setFingerprintInitStatus: Function
-  setVideoContent: Function
-  setMusicContent: Function
-  setMusicLoading: Function
+interface IMainOwnProps {}
+
+interface IMainDispatchProps {
+  setGameLoading: (payload: boolean) => void
+  setVideoLoading: (payload: boolean) => void
+  setFontLoading: (payload: boolean) => void
+  setFingerprintInitStatus: (payload: boolean) => void
+  setVideoContent: (payload: Blob) => void
+  setMusicContent: (payload: Blob) => void
+  setMusicLoading: (payload: boolean) => void
 }
 
-const App: FC<IMain> = ({ ...props }: IMain): JSX.Element => {
+const App: FC<IMainOwnProps & IMainDispatchProps> = ({ ...props }: IMainOwnProps & IMainDispatchProps): JSX.Element => {
   const [authenticatedUser, setAuthenticatedUser] = useState<AuthContextProvider>();
   const [authLocale, setAuthLocale] = useState(Constant.GUEST_USER);
   const [componentsInit, setComponentsInit] = useState(false);
@@ -188,7 +190,7 @@ const mapDispatchToProps = {
   setMusicContent,
   setMusicLoading
 };
-const ConnectedApp = connect(null, mapDispatchToProps)(App);
+const ConnectedApp = connect(null, mapDispatchToProps)(App as React.ComponentType<IMainOwnProps & IMainDispatchProps>);
 
 const AppBuilder = () => {
   return (

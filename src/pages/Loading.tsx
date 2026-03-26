@@ -5,11 +5,11 @@ import { StateType } from "../states/reducers";
 import { setLoading, setLoadingBar } from "../states/actions/contentActions";
 
 interface ILoading {
-    setLoadingBar: Function
-    setLoading: Function
+    setLoadingBar: (value: number) => void
+    setLoading: (value: boolean) => void
 }
 
-const Loading: FC<ILoading> = ({ ...props }: ILoading): JSX.Element => {
+const Loading: FC<ILoading> = ({ setLoadingBar, setLoading }: ILoading): JSX.Element => {
     const content = useSelector((state: StateType) => state.content);
 
     useEffect(() => {
@@ -26,17 +26,17 @@ const Loading: FC<ILoading> = ({ ...props }: ILoading): JSX.Element => {
         const progressVal = 100 / contentList.length;
         const contentEntries = Object.entries(content);
         let newProgressVal: number = 0;
-        for (let cont of contentList) {
+        for (const cont of contentList) {
             const isLoad = contentEntries.find((v) => { return v.find((v1) => { return cont === v1 }); });
             newProgressVal += isLoad![1] === true ? progressVal : 0;
         }
 
-        props.setLoadingBar(newProgressVal < 100 ? newProgressVal : 100);
+        setLoadingBar(newProgressVal < 100 ? newProgressVal : 100);
     }
 
     const loaderFinishCallback = (state: boolean) => {
         if(state)
-            props.setLoading(false);
+            setLoading(false);
     }
 
     return (
@@ -46,6 +46,5 @@ const Loading: FC<ILoading> = ({ ...props }: ILoading): JSX.Element => {
     );
 }
 
-const mapDispatchToProps = { setLoadingBar, setLoading };
-
-export default connect(null, mapDispatchToProps)(Loading);
+const ConnectedLoading = connect(null, { setLoadingBar, setLoading })(Loading);
+export default ConnectedLoading;
