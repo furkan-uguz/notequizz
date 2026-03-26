@@ -190,7 +190,7 @@ const mapDispatchToProps = {
   setMusicContent,
   setMusicLoading
 };
-const ConnectedApp = connect(null, mapDispatchToProps)(App as React.ComponentType<IMainOwnProps & IMainDispatchProps>);
+const ConnectedApp = connect(null, mapDispatchToProps)(App);
 
 const AppBuilder = () => {
   return (
