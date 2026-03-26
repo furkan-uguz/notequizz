@@ -3,13 +3,9 @@ import { connect, useSelector } from "react-redux";
 import Loader from "../components/Loader";
 import { StateType } from "../states/reducers";
 import { setLoading, setLoadingBar } from "../states/actions/contentActions";
+import { ConnectedProps } from "react-redux";
 
-interface ILoading {
-    setLoadingBar: (value: number) => void
-    setLoading: (value: boolean) => void
-}
-
-const Loading: FC<ILoading> = ({ setLoadingBar, setLoading }: ILoading): JSX.Element => {
+const Loading: FC<PropsFromRedux> = (props): JSX.Element => {
     const content = useSelector((state: StateType) => state.content);
 
     useEffect(() => {
@@ -31,12 +27,12 @@ const Loading: FC<ILoading> = ({ setLoadingBar, setLoading }: ILoading): JSX.Ele
             newProgressVal += isLoad![1] === true ? progressVal : 0;
         }
 
-        setLoadingBar(newProgressVal < 100 ? newProgressVal : 100);
+        props.setLoadingBar(newProgressVal < 100 ? newProgressVal : 100);
     }
 
     const loaderFinishCallback = (state: boolean) => {
-        if(state)
-            setLoading(false);
+        if (state)
+            props.setLoading(false);
     }
 
     return (
@@ -46,5 +42,12 @@ const Loading: FC<ILoading> = ({ setLoadingBar, setLoading }: ILoading): JSX.Ele
     );
 }
 
-const ConnectedLoading = connect(null, { setLoadingBar, setLoading })(Loading);
+const connector = connect(null, {
+    setLoadingBar,
+    setLoading
+});
+
+type PropsFromRedux = ConnectedProps<typeof connector>;
+const ConnectedLoading = connector(Loading);
+
 export default ConnectedLoading;

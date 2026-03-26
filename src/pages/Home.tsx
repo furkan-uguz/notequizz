@@ -13,14 +13,9 @@ import { Button, Card, CardBody, CardFooter, CardHeader, Progress } from '@herou
 import { NoteStaff } from '../components/NoteStaff';
 import { cn } from '../lib/utils';
 import { CardContent, CardDescription, CardTitle } from '../components/Card';
+import { ConnectedProps } from 'react-redux';
 
-interface IHome {
-    setGameStatus: Function;
-    setPoint: Function;
-    setResetGame: Function;
-}
-
-const Home: FC<IHome> = ({ ...props }: IHome): JSX.Element => {
+const Home: FC<PropsFromRedux> = (props): JSX.Element => {
     const [timeLeft, setTimeLeft] = useState(Constants.GAME_DURATION_MIN); //TODO İleride ayarlar kısmından süresi max min ayarlanacak.
     const [question, setQuestion] = useState<Question>(getQuestion());
     const [selection, setSelection] = useState<{ answer: string; isCorrect: boolean } | null>(null);
@@ -252,9 +247,13 @@ const Home: FC<IHome> = ({ ...props }: IHome): JSX.Element => {
     );
 }
 
-const mapDispatchToProps = {
+const connector = connect(null, {
     setGameStatus,
     setPoint,
     setResetGame
-}
-export default connect(null, mapDispatchToProps)(Home);
+});
+
+type PropsFromRedux = ConnectedProps<typeof connector>;
+const ConnectedHome = connector(Home);
+
+export default ConnectedHome;
