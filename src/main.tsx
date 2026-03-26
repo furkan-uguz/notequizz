@@ -2,7 +2,7 @@ import React, { FC, useEffect, useState } from 'react'
 import ReactDOM from 'react-dom/client'
 import { HelmetProvider } from 'react-helmet-async';
 import { BrowserRouter, useNavigate } from 'react-router-dom'
-import { Provider, connect, useSelector } from 'react-redux';
+import { ConnectedProps, Provider, connect, useSelector } from 'react-redux';
 import { IAddOptions, Loader, Resource } from 'resource-loader';
 import FingerprintJS from '@fingerprintjs/fingerprintjs';
 import WebFont from 'webfontloader';
@@ -16,19 +16,7 @@ import Constant, { ContentList } from './utils/Const';
 import Loading from './pages/Loading';
 import { HeroUIProvider } from '@heroui/react';
 
-interface IMainOwnProps {}
-
-interface IMainDispatchProps {
-  setGameLoading: (payload: boolean) => void
-  setVideoLoading: (payload: boolean) => void
-  setFontLoading: (payload: boolean) => void
-  setFingerprintInitStatus: (payload: boolean) => void
-  setVideoContent: (payload: Blob) => void
-  setMusicContent: (payload: Blob) => void
-  setMusicLoading: (payload: boolean) => void
-}
-
-const App: FC<IMainOwnProps & IMainDispatchProps> = ({ ...props }: IMainOwnProps & IMainDispatchProps): JSX.Element => {
+const App: FC<PropsFromRedux> = (props): JSX.Element => {
   const [authenticatedUser, setAuthenticatedUser] = useState<AuthContextProvider>();
   const [authLocale, setAuthLocale] = useState(Constant.GUEST_USER);
   const [componentsInit, setComponentsInit] = useState(false);
@@ -181,7 +169,8 @@ const App: FC<IMainOwnProps & IMainDispatchProps> = ({ ...props }: IMainOwnProps
     </>
   );
 }
-const mapDispatchToProps = {
+
+const connector = connect(null, {
   setGameLoading,
   setVideoLoading,
   setFontLoading,
@@ -189,8 +178,10 @@ const mapDispatchToProps = {
   setVideoContent,
   setMusicContent,
   setMusicLoading
-};
-const ConnectedApp = connect(null, mapDispatchToProps)(App);
+});
+
+type PropsFromRedux = ConnectedProps<typeof connector>;
+const ConnectedApp = connector(App);
 
 const AppBuilder = () => {
   return (
