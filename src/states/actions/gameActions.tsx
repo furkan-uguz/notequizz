@@ -17,6 +17,13 @@ export const setPoint = (answer: answerState) => (dispatch: Dispatch<Action>) =>
     dispatcher(ActionTypes.GAME_SET_USER_POINT, answer, dispatch);
 }
 
+export const setStreak = (streak: number) => (dispatch: Dispatch<Action>) => {
+    const payload: gameState = initialize;
+    payload.streak = streak;
+
+    dispatcher(ActionTypes.GAME_SET_STREAK, payload, dispatch);
+}
+
 export const setResetGame = () => (dispatch: Dispatch<Action>) => {
     const payload: gameState = initialize;
     

@@ -8,6 +8,7 @@ export enum GameStatus {
     START,
     PLAYING,
     EXERCISING,
+    LISTENING,
     END,
 }
 
@@ -27,6 +28,7 @@ const Constants = {
     POINTS: "Point(s)",
     CORRECT_ANSWER: "Correct(s)",
     WRONG_ANSWER: "Wrong(s)",
+    STREAK: "Streak(s)",
     GAME_DURATION_MIN:  60,
     GAME_DURATION_MAX: 300,
     GAINED_POINT: 1,
