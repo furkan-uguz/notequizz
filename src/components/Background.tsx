@@ -3,12 +3,14 @@ import { connect, useSelector } from 'react-redux';
 import { setVideoLoading } from '../states/actions/contentActions';
 import { StateType } from '../states/reducers';
 import Flex from './Flex';
+import { cn } from '../lib/utils';
 
 interface IBackground extends React.PropsWithChildren {
     setVideoLoading: (loading: boolean) => void;
+    blurBackground?: boolean;
 }
 
-const Background = ({ ...props }: IBackground) => {
+const Background = ({...props}: IBackground) => {
     const content = useSelector((state: StateType) => state.content);
     const mainVideoRef = useRef<HTMLDivElement>(null);
     const mainThemeSoundRef = useRef<HTMLDivElement>(null);
@@ -42,13 +44,23 @@ const Background = ({ ...props }: IBackground) => {
 
     return (
         <>
-            <div className='main-bg-video main-bg-opacity opacity-anim select-none overflow-hidden' ref={mainVideoRef}>
-                <Flex direction='col' mxAuto={true} align='center' justify='center' className='h-screen'>
-                    <Flex>{props.children}</Flex>
+            {/* Video Arkaplan Katmanı: Blur sadece buraya uygulanır */}
+            <div 
+                className={cn(
+                    "main-bg-video main-bg-opacity transition-all duration-1000 select-none overflow-hidden -z-10 fixed inset-0", 
+                    props.blurBackground ? "blur-xl scale-110" : "blur-0"
+                )} 
+                ref={mainVideoRef} 
+            />
+
+            {/* UI İçerik Katmanı: Bu katman her zaman net kalır */}
+            <div className="relative z-10">
+                <Flex direction='col' mxAuto={true} align='center' justify='center' className='min-h-screen'>
+                    {props.children}
                 </Flex>
             </div>
-            <div ref={mainThemeSoundRef}>
-            </div>
+            
+            <div ref={mainThemeSoundRef} />
         </>
     );
 }

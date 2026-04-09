@@ -9,7 +9,9 @@ export interface gameState extends state {
     point: number,
     correct: number,
     wrong: number,
-    total: number
+    total: number,
+    streak: number,
+    totalStreak: number
 }
 
 export interface answerState {
@@ -24,7 +26,9 @@ export const initialize: gameState = {
     point: 0,
     correct: 0,
     wrong: 0,
-    total: 0
+    total: 0,
+    streak: 0,
+    totalStreak: 0
 }
 
 const defaultInit: gameState = {
@@ -34,7 +38,9 @@ const defaultInit: gameState = {
     point: Constants.DEFAULT_POINT,
     correct: 0,
     wrong: 0,
-    total: 0
+    total: 0,
+    streak: 0,
+    totalStreak: 0
 }
 
 const authReducer = (state: gameState = initialize, action: Action) => {
@@ -56,6 +62,10 @@ const authReducer = (state: gameState = initialize, action: Action) => {
         case ActionTypes.GAME_REFRESH:
             newState = defaultInit;
             newState.isInit = true;
+            break;
+        case ActionTypes.GAME_SET_STREAK:
+            newState.streak = action.payload.streak;
+            newState.totalStreak += action.payload.streak >= 2 ? 1 : 0;
             break;
         default:
             return state;
