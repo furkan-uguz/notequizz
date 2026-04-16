@@ -122,8 +122,9 @@ export function initBackgroundMusic(): Promise<void> {
 export function controlBackgroundMusic(command: 'start' | 'stop', volume: number = 0.5) {
   if (!backgroundPlayer) return;
   if (command === 'start') {
+    backgroundPlayer.start(Tone.now(), 16); // 16 saniyelik bir başlangıç noktası belirliyoruz
     backgroundPlayer.volume.value = Tone.gainToDb(volume);
-    if (backgroundPlayer.state !== 'started') backgroundPlayer.start();
+    if (backgroundPlayer.state !== 'started') backgroundPlayer.start(Tone.now(), 16);
   } else {
     backgroundPlayer.stop();
   }

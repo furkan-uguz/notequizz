@@ -10,7 +10,7 @@ import { StateType } from '../states/reducers';
 import { getQuestion, notes, playFrequency, playNoteSound, playEffect, Question, fadeBackgroundMusic, controlBackgroundMusic } from '../lib/Note';
 import { Award, CheckCircle, Clock, Flame, LogOut, ShieldX, Star, Volume2 } from 'lucide-react';
 import Flex, { FlexType } from '../components/Flex';
-import { Button, Card, CardBody, CardFooter, CardHeader, Progress, Select, SelectItem, Slider, Switch, Chip } from '@heroui/react';
+import { Button, Card, CardBody, CardFooter, CardHeader, Progress, Select, SelectItem, Slider, Switch, Chip, Input, Tabs, Tab } from '@heroui/react';
 import { NoteStaff } from '../components/NoteStaff';
 import { cn } from '../lib/Util';
 import { CardContent, CardDescription, CardTitle } from '../components/Card';
@@ -21,12 +21,13 @@ import confetti from 'canvas-confetti';
 const Home: FC<PropsFromRedux> = (props): JSX.Element => {
     const [gameDuration, setGameDuration] = useState(Constant.GAME_DURATION_MIN);
     const [timeLeft, setTimeLeft] = useState(Constant.GAME_DURATION_MIN);
-    const [tempSettings, setTempSettings] = useState({ musicVolume: 0.5, duration: Constant.GAME_DURATION_MIN, soundEffectsEnabled: true, noteSoundType: 'piano' as 'piano' | 'oscillator', oscillatorType: 'sine' as OscillatorType, answerDisplayMode: 'solfege' as 'solfege' | 'name', selectedOctaves: new Set(['3', '4', '5']), showOctaveBadge: true });
+    const [tempSettings, setTempSettings] = useState({ musicVolume: 0.5, duration: Constant.GAME_DURATION_MIN, soundEffectsEnabled: true, noteSoundType: 'piano' as 'piano' | 'oscillator', oscillatorType: 'sine' as OscillatorType, answerDisplayMode: 'solfege' as 'solfege' | 'name', selectedOctaves: new Set(['3', '4', '5']), showOctaveBadge: true, buttonKeys: ['1', '2', '3', '4'] });
     const [question, setQuestion] = useState<Question>(getQuestion());
     const [selection, setSelection] = useState<{ answer: string; isCorrect: boolean } | null>(null);
     const [testValue, setTestValue] = useState('');
     const [musicVolume, setMusicVolume] = useState(0.5);
     const [soundEffectsEnabled, setSoundEffectsEnabled] = useState(true);
+    const [buttonKeys, setButtonKeys] = useState<string[]>(['1', '2', '3', '4']);
     const [noteSoundType, setNoteSoundType] = useState<'piano' | 'oscillator'>('piano');
     const [oscillatorType, setOscillatorType] = useState<OscillatorType>('sine');
     const [answerDisplayMode, setAnswerDisplayMode] = useState<'solfege' | 'name'>('solfege');
@@ -35,6 +36,16 @@ const Home: FC<PropsFromRedux> = (props): JSX.Element => {
     const [feedback, setFeedback] = useState<string | null>(null);
     const game = useSelector((state: StateType) => state.game);
     const content = useSelector((state: StateType) => state.content);
+
+    // Mobil cihaz tespiti (768px altı ekranlar için)
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     const progress = useMemo(() => (timeLeft / gameDuration) * 100, [timeLeft, gameDuration]);
     
     const timerColor = useMemo(() => {
@@ -69,12 +80,13 @@ const Home: FC<PropsFromRedux> = (props): JSX.Element => {
         const savedDisplayMode = localStorage.getItem('settings_display_mode');
         const savedOctaves = localStorage.getItem('settings_octaves');
         const savedShowOctave = localStorage.getItem('settings_show_octave');
+        const savedKeys = localStorage.getItem('settings_button_keys');
 
         if (savedVolume !== null) {
             const v = parseFloat(savedVolume);
             setMusicVolume(v);
             controlBackgroundMusic('start', musicVolume);
-            fadeBackgroundMusic(v, 0); // Kayıtlı sesi anında uygula
+            fadeBackgroundMusic(v, 1.5); // Kayıtlı sesi anında uygula
         }
         if (savedDuration !== null) {
             const d = parseInt(savedDuration);
@@ -103,6 +115,14 @@ const Home: FC<PropsFromRedux> = (props): JSX.Element => {
         }
         if (savedShowOctave !== null) {
             setShowOctaveBadge(savedShowOctave === 'true');
+        }
+        if (savedKeys !== null) {
+            try {
+                const parsed = JSON.parse(savedKeys);
+                if (Array.isArray(parsed) && parsed.length === 4) setButtonKeys(parsed);
+            } catch (e) {
+                console.error("Error parsing saved button keys", e);
+            }
         }
     }, [content]);
 
@@ -135,7 +155,7 @@ const Home: FC<PropsFromRedux> = (props): JSX.Element => {
         gameBegin();
     }, [game.gameStatus]);
 
-    const handleAnswer = (answer: string) => {
+    const handleAnswer = useCallback((answer: string) => {
         if (selection || !question) return;
 
         const isCorrect = answer === question.correctNote.solfege;
@@ -182,7 +202,7 @@ const Home: FC<PropsFromRedux> = (props): JSX.Element => {
         setTimeout(() => {
             loadNextQuestion(question.correctNote.solfege, answer);
         }, 1200);
-    };
+    }, [selection, question, soundEffectsEnabled, game.streak, props, loadNextQuestion]);
 
     const fadeOutMusic = useCallback(() => {
         // Tone.js ile 1 saniye içinde pürüzsüzce sesi kapat
@@ -212,7 +232,7 @@ const Home: FC<PropsFromRedux> = (props): JSX.Element => {
         props.setResetGame();
         props.setGameStatus(GameStatus.START);
         setTimeLeft(gameDuration);
-        fadeBackgroundMusic(musicVolume, 1); // 1 saniyede geri aç
+        fadeBackgroundMusic(musicVolume, 5); // 1 saniyede geri aç
         controlBackgroundMusic('start', musicVolume);
     }
 
@@ -221,9 +241,39 @@ const Home: FC<PropsFromRedux> = (props): JSX.Element => {
     }
 
     const settingsAction = () => {
-        setTempSettings({ musicVolume, duration: gameDuration, soundEffectsEnabled, noteSoundType, oscillatorType, answerDisplayMode, selectedOctaves: new Set(selectedOctaves), showOctaveBadge });
+        setTempSettings({ musicVolume, duration: gameDuration, soundEffectsEnabled, noteSoundType, oscillatorType, answerDisplayMode, selectedOctaves: new Set(selectedOctaves), showOctaveBadge, buttonKeys: [...buttonKeys] });
         props.setGameStatus(GameStatus.SETTINGS);
     }
+
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            // Eğer kullanıcı bir input (örneğin test alanı) içindeyse kısayolları çalıştırma
+            if (document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA') return;
+
+            if (game.gameStatus === GameStatus.PLAYING || game.gameStatus === GameStatus.EXERCISING) {
+                if (!question) return;
+
+                // Boşluk tuşu (Space) ile notayı tekrar çal
+                if (e.code === 'Space') {
+                    e.preventDefault();
+                    playNoteSound(question.correctNote, 1, noteSoundType, oscillatorType);
+                    return;
+                }
+
+                if (selection) return;
+
+                // 1, 2, 3, 4 tuşlarını seçeneklerin indexleriyle eşleştir
+                const pressedKey = e.key.toLowerCase();
+                const index = buttonKeys.findIndex(k => k.toLowerCase() === pressedKey);
+                if (index >= 0 && index < question.options.length) {
+                    handleAnswer(question.options[index]);
+                }
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [game.gameStatus, question, selection, handleAnswer, noteSoundType, oscillatorType, buttonKeys]);
 
     const saveSettings = () => {
         localStorage.setItem('settings_volume', musicVolume.toString());
@@ -234,6 +284,7 @@ const Home: FC<PropsFromRedux> = (props): JSX.Element => {
         localStorage.setItem('settings_display_mode', answerDisplayMode);
         localStorage.setItem('settings_octaves', JSON.stringify(Array.from(selectedOctaves)));
         localStorage.setItem('settings_show_octave', showOctaveBadge.toString());
+        localStorage.setItem('settings_button_keys', JSON.stringify(buttonKeys));
         props.setGameStatus(GameStatus.START);
     }
 
@@ -246,22 +297,28 @@ const Home: FC<PropsFromRedux> = (props): JSX.Element => {
         setAnswerDisplayMode(tempSettings.answerDisplayMode);
         setSelectedOctaves(tempSettings.selectedOctaves);
         setShowOctaveBadge(tempSettings.showOctaveBadge);
+        setButtonKeys(tempSettings.buttonKeys);
         fadeBackgroundMusic(tempSettings.musicVolume, 0);
         props.setGameStatus(GameStatus.START);
     }
 
+    const resetToDefaults = () => {
+        setMusicVolume(0.5);
+        setGameDuration(Constant.GAME_DURATION_MIN);
+        setSoundEffectsEnabled(true);
+        setNoteSoundType('piano');
+        setOscillatorType('sine');
+        setAnswerDisplayMode('solfege');
+        setSelectedOctaves(new Set(['3', '4', '5']));
+        setShowOctaveBadge(true);
+        setButtonKeys(['1', '2', '3', '4']);
+        fadeBackgroundMusic(0.5, 0);
+    }
 
     const handleVolumeChange = (value: number | number[]) => {
         const val = Array.isArray(value) ? value[0] : value;
         setMusicVolume(val);
         fadeBackgroundMusic(val, 0.1); // Slider değişimlerinde pürüzsüz küçük geçiş
-    }
-
-    const testSounds = () => {
-        if (soundEffectsEnabled) {
-            playEffect('correct');
-            setTimeout(() => playEffect('incorrect'), 400);
-        }
     }
 
     const highScoresAction = () => {
@@ -440,7 +497,14 @@ const Home: FC<PropsFromRedux> = (props): JSX.Element => {
                                     )}
                                     variant="solid"
                                 >
-                                    {displayLabel}
+                                    <Flex direction='col' justify={'between'} className='w-100'>
+                                        <FlexType flexType={'flex-1'} align={'end'}>
+                                            {!isMobile && (
+                                                <Flex justify='end'><span className="text-[20px] opacity-60 font-mono mb-1 leading-none text-blue-500">({buttonKeys[index]})</span></Flex>
+                                            )}
+                                        </FlexType>
+                                        <FlexType flexType={'flex-1'}>{displayLabel}</FlexType>
+                                    </Flex>
                                 </Button>
                             );
                         })}
@@ -505,117 +569,173 @@ const Home: FC<PropsFromRedux> = (props): JSX.Element => {
                         <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-secondary">{Constant.SETTINGS_HEADER}</h2>
                         <p className="text-base text-default-500">{Constant.SETTINGS_DESC}</p>
                     </CardHeader>
-                    <CardBody className="space-y-6 text-lg">
-                        <div className="flex flex-col gap-2 p-3 bg-default-100 rounded-lg transition-colors duration-300">
-                            <Slider 
-                            label={Constant.MAIN_MENU_SOUND_LABEL}
-                            step={0.01} 
-                            maxValue={1} 
-                            minValue={0} 
-                            value={musicVolume}
-                            onChange={handleVolumeChange}
-                            startContent={<Volume2 className="text-secondary w-5 h-5" />}
-                            color="secondary"
-                        />
-                        </div>
-                        <div className="flex flex-col gap-2 p-3 bg-default-100 rounded-lg transition-colors duration-300">
-                            <Slider 
-                            label={Constant.SETTINGS_GAME_DURATION_LABEL}
-                            step={10} 
-                            maxValue={Constant.GAME_DURATION_MAX} 
-                            minValue={Constant.GAME_DURATION_MIN} 
-                            value={gameDuration}
-                            onChange={(v) => setGameDuration(Array.isArray(v) ? v[0] : v)}
-                            startContent={<Clock className="text-secondary w-5 h-5" />}
-                            color="secondary"
-                        />
-                        </div>
-                        <div className="flex items-center justify-between p-3 bg-default-100 rounded-lg transition-colors duration-300">
-                            <span className="text-sm font-medium text-foreground">{Constant.SETTINGS_SFX_LABEL}</span>
-                            <Switch 
-                                isSelected={soundEffectsEnabled} 
-                                onValueChange={setSoundEffectsEnabled}
-                                color="secondary"
-                            />
-                        </div>
-                        <div className="flex items-center justify-between p-3 bg-default-100 rounded-lg transition-colors duration-300">
-                            <span className="text-sm font-medium text-foreground">{Constant.SETTINGS_SHOW_OCTAVE_LABEL}</span>
-                            <Switch 
-                                isSelected={showOctaveBadge} 
-                                onValueChange={setShowOctaveBadge}
-                                color="secondary"
-                            />
-                        </div>
-                        <div className="flex flex-col gap-2 p-3 bg-default-100 rounded-lg transition-colors duration-300">
-                            <Select 
-                                label={Constant.SETTINGS_NOTE_SOUND_TYPE_LABEL}
-                                selectedKeys={[noteSoundType]}
-                                onSelectionChange={(keys) => {
-                                    const val = Array.from(keys)[0] as string;
-                                    if (val) setNoteSoundType(val as 'piano' | 'oscillator');
-                                }}
-                                color="secondary"
-                                variant="flat"
-                            >
-                                <SelectItem key="piano">{Constant.SETTINGS_NOTE_SOUND_TYPE_PIANO}</SelectItem>
-                                <SelectItem key="oscillator">{Constant.SETTINGS_NOTE_SOUND_TYPE_OSCILLATOR}</SelectItem>
-                            </Select>
-                        </div>
-                        {noteSoundType === 'oscillator' && (
-                        <div className="flex flex-col gap-2 p-3 bg-default-100 rounded-lg transition-colors duration-300">
-                            <Select 
-                                label={Constant.SETTINGS_OSCILLATOR_LABEL}
-                                selectedKeys={[oscillatorType]}
-                                onSelectionChange={(keys) => {
-                                    const val = Array.from(keys)[0] as string;
-                                    if (val) setOscillatorType(val as OscillatorType);
-                                }}
-                                color="secondary"
-                                variant="flat"
-                            >
-                                <SelectItem key="sine">{Constant.SETTINGS_OSCILLATOR_SINE}</SelectItem>
-                                <SelectItem key="square">{Constant.SETTINGS_OSCILLATOR_SQUARE}</SelectItem>
-                                <SelectItem key="sawtooth">{Constant.SETTINGS_OSCILLATOR_SAWTOOTH}</SelectItem>
-                                <SelectItem key="triangle">{Constant.SETTINGS_OSCILLATOR_TRIANGLE}</SelectItem>
-                            </Select>
-                        </div>
-                        )}
-                        <div className="flex flex-col gap-2 p-3 bg-default-100 rounded-lg transition-colors duration-300">
-                            <Select 
-                                label={Constant.SETTINGS_DISPLAY_MODE_LABEL}
-                                selectedKeys={[answerDisplayMode]}
-                                onSelectionChange={(keys) => {
-                                    const val = Array.from(keys)[0] as string;
-                                    if (val) setAnswerDisplayMode(val as 'solfege' | 'name');
-                                }}
-                                color="secondary"
-                                variant="flat"
-                            >
-                                <SelectItem key="solfege">{Constant.SETTINGS_DISPLAY_MODE_SOLFEGE}</SelectItem>
-                                <SelectItem key="name">{Constant.SETTINGS_DISPLAY_MODE_SCIENTIFIC}</SelectItem>
-                            </Select>
-                        </div>
-                        <div className="flex flex-col gap-2 p-3 bg-default-100 rounded-lg transition-colors duration-300">
-                            <Select 
-                                label={Constant.SETTINGS_OCTAVES_LABEL}
-                                selectionMode="multiple"
-                                selectedKeys={selectedOctaves}
-                                onSelectionChange={(keys) => setSelectedOctaves(keys as Set<string>)}
-                                color="secondary"
-                                variant="flat"
-                            >
-                                {['0', '1', '2', '3', '4', '5', '6', '7'].map((octave) => (
-                                    <SelectItem key={octave} textValue={`Octave ${octave}`}>
-                                        {Constant.SETTINGS_OCTAVES_LABEL_PREFIX} {octave}
-                                    </SelectItem>
-                                ))}
-                            </Select>
-                        </div>
-                        <Button color='primary' variant='flat' onPress={testSounds} className="w-full font-bold">{Constant.TEST_SOUNDS_BUTTON}</Button>
+                    <CardBody className="text-lg">
+                        <Tabs fullWidth size="md" aria-label="Settings Tabs" color="secondary" variant="underlined">
+                            <Tab key="general" title={Constant.SETTINGS_TAB_GENERAL}>
+                                <div className="flex flex-col gap-4 mt-4">
+                                    <div className="flex flex-col gap-2 p-3 bg-default-100 rounded-lg">
+                                        <Slider 
+                                            label={Constant.SETTINGS_GAME_DURATION_LABEL}
+                                            step={10} 
+                                            maxValue={Constant.GAME_DURATION_MAX} 
+                                            minValue={Constant.GAME_DURATION_MIN} 
+                                            value={gameDuration}
+                                            onChange={(v) => setGameDuration(Array.isArray(v) ? v[0] : v)}
+                                            startContent={<Clock className="text-secondary w-5 h-5" />}
+                                            color="secondary"
+                                        />
+                                    </div>
+                                    <div className="flex flex-col gap-2 p-3 bg-default-100 rounded-lg">
+                                        <Select 
+                                            label={Constant.SETTINGS_OCTAVES_LABEL}
+                                            selectionMode="multiple"
+                                            selectedKeys={selectedOctaves}
+                                            onSelectionChange={(keys) => {
+                                                if ((keys as Set<string>).size > 0) {
+                                                    setSelectedOctaves(keys as Set<string>);
+                                                }
+                                            }}
+                                            color="secondary"
+                                            variant="flat"
+                                            renderValue={(items) => {
+                                                if (isMobile && items.length > 3) {
+                                                    return `${items.slice(0, 3).map(item => item.textValue).join(", ")} ...`;
+                                                }
+                                                return items.map(item => item.textValue).join(", ");
+                                            }}
+                                        >
+                                            {['0', '1', '2', '3', '4', '5', '6', '7'].map((octave) => (
+                                                <SelectItem key={octave} textValue={`Octave ${octave}`}>
+                                                    {Constant.SETTINGS_OCTAVES_LABEL_PREFIX} {octave}
+                                                </SelectItem>
+                                            ))}
+                                        </Select>
+                                    </div>
+                                    <div className="flex flex-col gap-2 p-3 bg-default-100 rounded-lg">
+                                        <Select 
+                                            label={Constant.SETTINGS_DISPLAY_MODE_LABEL}
+                                            selectedKeys={[answerDisplayMode]}
+                                            onSelectionChange={(keys) => {
+                                                const val = Array.from(keys)[0] as string;
+                                                if (val) setAnswerDisplayMode(val as 'solfege' | 'name');
+                                            }}
+                                            color="secondary"
+                                            variant="flat"
+                                        >
+                                            <SelectItem key="solfege">{Constant.SETTINGS_DISPLAY_MODE_SOLFEGE}</SelectItem>
+                                            <SelectItem key="name">{Constant.SETTINGS_DISPLAY_MODE_SCIENTIFIC}</SelectItem>
+                                        </Select>
+                                    </div>
+                                    <div className="flex items-center justify-between p-3 bg-default-100 rounded-lg">
+                                        <span className="text-sm font-medium text-foreground">{Constant.SETTINGS_SHOW_OCTAVE_LABEL}</span>
+                                        <Switch 
+                                            isSelected={showOctaveBadge} 
+                                            onValueChange={setShowOctaveBadge}
+                                            color="secondary"
+                                        />
+                                    </div>
+                                </div>
+                            </Tab>
+                            <Tab key="audio" title={Constant.SETTINGS_TAB_AUDIO}>
+                                <div className="flex flex-col gap-4 mt-4">
+                                    <div className="flex flex-col gap-2 p-3 bg-default-100 rounded-lg">
+                                        <Slider 
+                                            label={Constant.MAIN_MENU_SOUND_LABEL}
+                                            step={0.01} 
+                                            maxValue={1} 
+                                            minValue={0} 
+                                            value={musicVolume}
+                                            onChange={handleVolumeChange}
+                                            startContent={<Volume2 className="text-secondary w-5 h-5" />}
+                                            color="secondary"
+                                        />
+                                    </div>
+                                    <div className="flex items-center justify-between p-3 bg-default-100 rounded-lg">
+                                        <span className="text-sm font-medium text-foreground">{Constant.SETTINGS_SFX_LABEL}</span>
+                                        <Switch 
+                                            isSelected={soundEffectsEnabled} 
+                                            onValueChange={setSoundEffectsEnabled}
+                                            color="secondary"
+                                        />
+                                    </div>
+                                    <div className="flex flex-col gap-2 p-3 bg-default-100 rounded-lg">
+                                        <Select 
+                                            label={Constant.SETTINGS_NOTE_SOUND_TYPE_LABEL}
+                                            selectedKeys={[noteSoundType]}
+                                            onSelectionChange={(keys) => {
+                                                const val = Array.from(keys)[0] as string;
+                                                if (val) setNoteSoundType(val as 'piano' | 'oscillator');
+                                            }}
+                                            color="secondary"
+                                            variant="flat"
+                                        >
+                                            <SelectItem key="piano">{Constant.SETTINGS_NOTE_SOUND_TYPE_PIANO}</SelectItem>
+                                            <SelectItem key="oscillator">{Constant.SETTINGS_NOTE_SOUND_TYPE_OSCILLATOR}</SelectItem>
+                                        </Select>
+                                    </div>
+                                    {noteSoundType === 'oscillator' && (
+                                        <div className="flex flex-col gap-2 p-3 bg-default-100 rounded-lg">
+                                            <Select 
+                                                label={Constant.SETTINGS_OSCILLATOR_LABEL}
+                                                selectedKeys={[oscillatorType]}
+                                                onSelectionChange={(keys) => {
+                                                    const val = Array.from(keys)[0] as string;
+                                                    if (val) setOscillatorType(val as OscillatorType);
+                                                }}
+                                                color="secondary"
+                                                variant="flat"
+                                            >
+                                                <SelectItem key="sine">{Constant.SETTINGS_OSCILLATOR_SINE}</SelectItem>
+                                                <SelectItem key="square">{Constant.SETTINGS_OSCILLATOR_SQUARE}</SelectItem>
+                                                <SelectItem key="sawtooth">{Constant.SETTINGS_OSCILLATOR_SAWTOOTH}</SelectItem>
+                                                <SelectItem key="triangle">{Constant.SETTINGS_OSCILLATOR_TRIANGLE}</SelectItem>
+                                            </Select>
+                                        </div>
+                                    )}
+                                </div>
+                            </Tab>
+                            {!isMobile && (
+                                <Tab key="controls" title={Constant.SETTINGS_TAB_CONTROLS}>
+                                    <div className="flex flex-col gap-4 mt-4">
+                                        <div className="flex flex-col gap-2 p-3 bg-default-100 rounded-lg">
+                                            <span className="text-sm font-medium text-foreground self-start">{Constant.SETTINGS_BUTTON_KEYS_LABEL}</span>
+                                            <div className="flex gap-2 justify-center">
+                                                {buttonKeys.map((key, idx) => (
+                                                    <Input 
+                                                        key={idx}
+                                                        className="w-16"
+                                                        size="sm"
+                                                        value={key}
+                                                        onKeyDown={(e) => {
+                                                            e.preventDefault();
+                                                            const newKeys = [...buttonKeys];
+                                                            const newKey = e.key.toUpperCase();
+                                                            if (newKey.length === 1) {
+                                                                const existingIndex = buttonKeys.findIndex((k, i) => i !== idx && k.toUpperCase() === newKey);
+                                                                if (existingIndex === -1) {
+                                                                    newKeys[idx] = newKey;
+                                                                    setButtonKeys(newKeys);
+                                                                }
+                                                            }
+                                                        }}
+                                                        classNames={{
+                                                            input: "text-center font-bold"
+                                                        }}
+                                                    />
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </Tab>
+                            )}
+                        </Tabs>
                     </CardBody>
-                    <CardFooter className='gap-1'>
-                        <Button color='secondary' onPress={() => saveSettings()} className="w-full text-2xl hover:scale-105" size="lg">{Constant.SAVE_BUTTON}</Button>
-                        <Button color='secondary' onPress={() => cancelSettings()} className="w-full text-2xl hover:scale-105" size="lg">{Constant.CANCEL_BUTTON}</Button>
+                    <CardFooter className='flex-col gap-2'>
+                        <div className='flex w-full gap-2'>
+                            <Button color='secondary' onPress={() => saveSettings()} className="w-full text-xl hover:scale-105" size="lg">{Constant.SAVE_BUTTON}</Button>
+                            <Button color='secondary' onPress={() => cancelSettings()} className="w-full text-xl hover:scale-105" size="lg">{Constant.CANCEL_BUTTON}</Button>
+                        </div>
+                        <Button variant='flat' color='default' onPress={() => resetToDefaults()} className="w-full text-lg hover:scale-105" size="lg">{Constant.RESET_DEFAULT_BUTTON}</Button>
                     </CardFooter>
                 </Card>
             </div>

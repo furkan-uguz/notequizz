@@ -17,6 +17,7 @@
     --color-yellow-500: oklch(79.5% 0.184 86.047);
     --color-green-300: oklch(87.1% 0.15 154.449);
     --color-green-500: oklch(72.3% 0.219 149.579);
+    --color-blue-500: oklch(62.3% 0.214 259.815);
     --color-gray-500: oklch(55.1% 0.027 264.364);
     --color-gray-600: oklch(44.6% 0.03 256.802);
     --color-black: #000;
@@ -876,6 +877,9 @@
   .w-40 {
     width: calc(var(--spacing) * 40);
   }
+  .w-100 {
+    width: calc(var(--spacing) * 100);
+  }
   .w-\[25\%\] {
     width: 25%;
   }
@@ -1217,6 +1221,9 @@
   .touch-none {
     touch-action: none;
   }
+  .resize {
+    resize: both;
+  }
   .resize-none {
     resize: none;
   }
@@ -1392,6 +1399,9 @@
   }
   .self-center {
     align-self: center;
+  }
+  .self-start {
+    align-self: flex-start;
   }
   .truncate {
     overflow: hidden;
@@ -2263,6 +2273,12 @@
   .text-\[0\.55rem\] {
     font-size: 0.55rem;
   }
+  .text-\[10px\] {
+    font-size: 10px;
+  }
+  .text-\[20px\] {
+    font-size: 20px;
+  }
   .text-\[100\%\] {
     font-size: 100%;
   }
@@ -2344,6 +2360,9 @@
   }
   .text-black {
     color: var(--color-black);
+  }
+  .text-blue-500 {
+    color: var(--color-blue-500);
   }
   .text-current {
     color: currentcolor;
@@ -2803,8 +2822,14 @@
   .opacity-30 {
     opacity: 30%;
   }
+  .opacity-40 {
+    opacity: 40%;
+  }
   .opacity-50 {
     opacity: 50%;
+  }
+  .opacity-60 {
+    opacity: 60%;
   }
   .opacity-70 {
     opacity: 70%;
