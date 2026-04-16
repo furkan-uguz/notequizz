@@ -37,6 +37,7 @@
     "redux-logger": "^3.0.6",
     "redux-thunk": "^3.1.0",
     "resource-loader": "^4.0.0-rc4",
+    "tone": "^15.1.22",
     "webfontloader": "^1.6.28"
   },
   "devDependencies": {

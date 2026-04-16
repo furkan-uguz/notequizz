@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { Note, playFrequency } from '../lib/Notes';
-import { cn } from '../lib/utils';
+import { Note, playNoteSound } from '../lib/Note';
+import { cn } from '../lib/Util';
 import { motion } from 'framer-motion';
 
 const BassClef = ({ className, ...props }: React.SVGProps<SVGSVGElement>) => (
@@ -23,9 +23,12 @@ const TrebleClef = ({ className, ...props }: React.SVGProps<SVGSVGElement>) => (
 
 type NoteStaffProps = {
     note: Note;
+    volume?: number;
+    noteSoundType?: 'piano' | 'oscillator';
+    oscillatorType?: OscillatorType;
 };
 
-export function NoteStaff({ note }: NoteStaffProps) {
+export function NoteStaff({ note, volume = 0.5, noteSoundType = 'piano', oscillatorType = 'sine' }: NoteStaffProps) {
     const [isActive, setIsActive] = useState(false);
 
     const dynamicHeight = useMemo(() => {
@@ -39,7 +42,7 @@ export function NoteStaff({ note }: NoteStaffProps) {
     }, [note.position]);
 
     const handleInteraction = () => {
-        playFrequency(note.frequency);
+        playNoteSound(note, volume, noteSoundType, oscillatorType);
         setIsActive(true);
         // Animasyonun görünür kalması için 500ms sonra state'i resetliyoruz
         setTimeout(() => setIsActive(false), 500);

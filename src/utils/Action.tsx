@@ -1,7 +1,7 @@
-import Actions from './Types';
+import { ActionType } from '../constants/ActionType';
 
 interface Action {
-    type: Actions,
+    type: ActionType,
     payload: any;
 }
 

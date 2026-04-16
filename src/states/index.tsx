@@ -1,4 +1,4 @@
-import ActionTypes from "../utils/Types";
+import ActionTypes from "../constants/ActionType";
 import reducers from "./reducers";
 import { Dispatch, configureStore } from "@reduxjs/toolkit";
 import Action from "../utils/Action";

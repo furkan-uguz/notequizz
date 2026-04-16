@@ -107,7 +107,7 @@
 
 @font-face {
   font-family: Niconne-Regular;
-  src: local("Niconne-Regular"), url('../fonts/Niconne-Regular.ttf') format("truetype");
+  src: local("Niconne-Regular"), url('../assets/fonts/Niconne-Regular.ttf') format("truetype");
 }
 
 @-webkit-keyframes pulse-anim {

@@ -2,22 +2,22 @@ import { FC, useEffect } from "react";
 import { connect, useSelector } from "react-redux";
 import Loader from "../components/Loader";
 import { StateType } from "../states/reducers";
-import { setLoading, setLoadingBar } from "../states/actions/contentActions";
+import { setLoading, setLoadingBar } from "../states/actions/contentAction";
 import { ConnectedProps } from "react-redux";
-
 const Loading: FC<PropsFromRedux> = (props): JSX.Element => {
     const content = useSelector((state: StateType) => state.content);
 
     useEffect(() => {
         calculate();
-    }, [content.isFontLoaded, content.isFingerPrintInited, content.isVideoLoaded]);
+    }, [content.isFontLoaded, content.isFingerPrintInited, content.isVideoLoaded, content.isMusicLoaded, content.isSoundsLoaded]);
 
     const calculate = () => {
         const contentList: string[] = [
             'isFontLoaded',
             'isFingerPrintInited',
             'isVideoLoaded',
-            'isMusicLoaded'
+            'isMusicLoaded',
+            'isSoundsLoaded'
         ]
         const progressVal = 100 / contentList.length;
         const contentEntries = Object.entries(content);

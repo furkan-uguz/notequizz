@@ -1,20 +1,22 @@
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC, useEffect, useState, useRef } from 'react'
 import ReactDOM from 'react-dom/client'
 import { HelmetProvider } from 'react-helmet-async';
 import { BrowserRouter, useNavigate } from 'react-router-dom'
 import { ConnectedProps, Provider, connect, useSelector } from 'react-redux';
-import { IAddOptions, Loader, Resource } from 'resource-loader';
+import { IAddOptions, Loader } from 'resource-loader';
 import FingerprintJS from '@fingerprintjs/fingerprintjs';
 import WebFont from 'webfontloader';
 import Router from './router';
 import AuthContext, { AuthContextProvider } from './contexts/AuthContext';
 import store from './states';
 import { StateType } from './states/reducers';
-import { setGameLoading } from './states/actions/gameActions';
-import { setFingerprintInitStatus, setVideoLoading, setFontLoading, setVideoContent, setMusicContent, setMusicLoading } from './states/actions/contentActions';
-import Constant, { ContentList } from './utils/Const';
+import { setGameLoading } from './states/actions/gameAction';
+import { setFingerprintInitStatus, setVideoLoading, setFontLoading, setVideoContent, setMusicLoading, setSoundLoading } from './states/actions/contentAction';
+import { ContentList } from './constants/ContentList';
+import { Constant } from './constants/Constant';
 import Loading from './pages/Loading';
 import { HeroUIProvider } from '@heroui/react';
+import { initSounds, initBackgroundMusic } from './lib/Note';
 
 const App: FC<PropsFromRedux> = (props): JSX.Element => {
   const [authenticatedUser, setAuthenticatedUser] = useState<AuthContextProvider>();
@@ -23,12 +25,12 @@ const App: FC<PropsFromRedux> = (props): JSX.Element => {
   const content = useSelector((state: StateType) => state.content);
   const game = useSelector((state: StateType) => state.game);
   const navigate = useNavigate();
-  const loader = new Loader();
-  let init = false;
+  const isInitialized = useRef(false);
 
   useEffect(() => {
-    if (!init) {
+    if (!isInitialized.current) {
       initialize();
+      isInitialized.current = true;
     }
   }, []);
 
@@ -45,7 +47,7 @@ const App: FC<PropsFromRedux> = (props): JSX.Element => {
     loadFonts();
     loadVideoContent();
     loadMusics();
-    init = true;
+    loadSounds();
   }
 
   const handleLoading = () => {
@@ -87,8 +89,9 @@ const App: FC<PropsFromRedux> = (props): JSX.Element => {
         loadType: 2,
         xhrType: 'blob',
       };
-
-      loader.use((resource, next) => {
+      
+      const videoLoader = new Loader();
+      videoLoader.use((resource, next) => {
         // Eğer iOS mime-type'ı boş bırakırsa manuel ata
         if (resource.data instanceof Blob && !resource.data.type) {
           resource.data = resource.data.slice(0, resource.data.size, 'video/mp4');
@@ -96,7 +99,7 @@ const App: FC<PropsFromRedux> = (props): JSX.Element => {
         next();
       });
 
-      loader.add(options).load((_loader, resource) => {
+      videoLoader.add(options).load((_loader, resource) => {
         props.setVideoContent(resource[ContentList.BG_VIDEO_SRC]?.data);
         props.setVideoLoading(true);
       });
@@ -105,19 +108,18 @@ const App: FC<PropsFromRedux> = (props): JSX.Element => {
 
   const loadMusics = () => {
     if (!content.isMusicLoaded) {
-      const options: IAddOptions = {
-        url: ContentList.BG_THEME_MUSIC,
-        crossOrigin: 'anonymous',
-        loadType: 3,
-        xhrType: 'blob',
-        parentResource: new Resource("resource", {
-          url: './assets',
-        }),
-      }
-
-      loader.add(options).load((_loader, resource) => {
-        props.setMusicContent(resource[ContentList.BG_THEME_MUSIC]?.data);
+      initBackgroundMusic().then(() => {
+        console.log("Music loaded via Tone.js");
         props.setMusicLoading(true);
+      });
+    }
+  }
+
+ const loadSounds = () => {
+    if(!content.isSoundsLoaded) {
+      initSounds().then(() => {
+        console.log("Sounds loaded");
+        props.setSoundLoading(true);
       });
     }
   }
@@ -128,14 +130,14 @@ const App: FC<PropsFromRedux> = (props): JSX.Element => {
       (async () => {
         const fp = await fpPromise;
         const result = await fp.get();
-        localStorage.setItem(process.env.VITE_REACT_APP_FINGERPRINT_NAME!, result.visitorId);
+        localStorage.setItem(import.meta.env.VITE_REACT_APP_FINGERPRINT_NAME!, result.visitorId);
       })();
       props.setFingerprintInitStatus(true);
     }
   }
 
   const buildAuthenticatedUser = (authType: string, user: any) => {
-    let authUser: AuthContextProvider = {
+    const authUser: AuthContextProvider = {
       authType: authType,
       authenticatedUser: {
         id: 0,
@@ -176,8 +178,8 @@ const connector = connect(null, {
   setFontLoading,
   setFingerprintInitStatus,
   setVideoContent,
-  setMusicContent,
-  setMusicLoading
+  setMusicLoading,
+  setSoundLoading
 });
 
 type PropsFromRedux = ConnectedProps<typeof connector>;
