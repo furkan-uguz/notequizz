@@ -1,9 +1,9 @@
 import { useEffect, useRef } from 'react';
 import { connect, useSelector } from 'react-redux';
-import { setVideoLoading } from '../states/actions/contentActions';
+import { setVideoLoading } from '../states/actions/contentAction';
 import { StateType } from '../states/reducers';
 import Flex from './Flex';
-import { cn } from '../lib/utils';
+import { cn } from '../lib/Util';
 
 interface IBackground extends React.PropsWithChildren {
     setVideoLoading: (loading: boolean) => void;
@@ -28,14 +28,6 @@ const Background = ({...props}: IBackground) => {
                 content.backgroundVideo!.preload = 'auto';
                 content.backgroundVideo!.play();
                 mainVideoRef.current!.append(content.backgroundVideo!);
-
-                content.backgroundMusic!.autoplay = true;
-                content.backgroundMusic!.muted = false;
-                content.backgroundMusic!.loop = true;
-                content.backgroundMusic!.controls = false;
-                content.backgroundMusic!.volume = 0.5;
-                content.backgroundMusic!.play();
-                mainThemeSoundRef.current!.append(content.backgroundMusic!);
             }
             initialize();
             initRef.current = true;
