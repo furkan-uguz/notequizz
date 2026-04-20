@@ -1,15 +1,16 @@
 import { defineConfig } from 'vite';
 import tailwindcss from '@tailwindcss/vite';
+import browserslist from 'browserslist';
+import { browserslistToTargets } from 'lightningcss';
+
 
 export default defineConfig({
+  base: './',
   plugins: [tailwindcss()],
   css: {
     transformer: 'lightningcss',
     lightningcss: {
-      targets: {
-        safari: { major: 13, minor: 0, patch: 0 },
-        chrome: { major: 80, minor: 0, patch: 0 }
-      }
+      targets: browserslistToTargets(browserslist('>= 0.25%, not dead')),
     }
   },
   build: {

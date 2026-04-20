@@ -13,6 +13,16 @@ export default {
   darkMode: "class",
   plugins: [heroui()],
   safelist: [
-    'space-y-4'
+    'space-y-4',
+    'space-y-3.5',
+    'space-y-3',
+    'space-y-2.5',
+    'space-y-2',
+    'space-y-1.5',
+    'space-y-1',
+    'space-y-0.75',
+    'space-y-0.5',
+    'space-y-0.25',
+    'space-y-0',
   ]
 };
