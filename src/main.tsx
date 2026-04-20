@@ -16,7 +16,7 @@ import { ContentList } from './constants/ContentList';
 import { Constant } from './constants/Constant';
 import Loading from './pages/Loading';
 import { HeroUIProvider } from '@heroui/react';
-import { initSounds, initBackgroundMusic } from './lib/Note';
+import { initSounds, initBackgroundMusic } from './lib/Sound';
 
 const App: FC<PropsFromRedux> = (props): JSX.Element => {
   const [authenticatedUser, setAuthenticatedUser] = useState<AuthContextProvider>();
