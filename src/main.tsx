@@ -4,6 +4,9 @@ import { HelmetProvider } from 'react-helmet-async';
 import { BrowserRouter, useNavigate } from 'react-router-dom'
 import { ConnectedProps, Provider, connect, useSelector } from 'react-redux';
 import { IAddOptions, Loader } from 'resource-loader';
+import { initializeApp } from "firebase/app";
+import { getPerformance } from "firebase/performance";
+import { getAnalytics, isSupported, setUserId, setUserProperties } from "firebase/analytics";
 import FingerprintJS from '@fingerprintjs/fingerprintjs';
 import WebFont from 'webfontloader';
 import Router from './router';
@@ -17,6 +20,23 @@ import { Constant } from './constants/Constant';
 import Loading from './pages/Loading';
 import { HeroUIProvider } from '@heroui/react';
 import { initSounds, initBackgroundMusic } from './lib/Sound';
+import usePageView from './hooks/useAnalytics';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDdqrgLCiptUGxqpC4j5VuC5nk9zlwQGhA",
+  authDomain: "notequizz.firebaseapp.com",
+  databaseURL: "https://notequizz-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "notequizz",
+  storageBucket: "notequizz.appspot.com",
+  messagingSenderId: "28432330911",
+  appId: "1:28432330911:web:a73a5360f225f2d11e72aa",
+  measurementId: "G-WRTE5ZY5ZC",
+};
+
+// Firebase'i modül seviyesinde başlatmak, hook'ların güvenle çalışmasını sağlar.
+const app = initializeApp(firebaseConfig);
+getPerformance(app);
+isSupported().then((supported) => supported && getAnalytics(app));
 
 const App: FC<PropsFromRedux> = (props): JSX.Element => {
   const [authenticatedUser, setAuthenticatedUser] = useState<AuthContextProvider>();
@@ -27,6 +47,9 @@ const App: FC<PropsFromRedux> = (props): JSX.Element => {
   const navigate = useNavigate();
   const isInitialized = useRef(false);
 
+  // Otomatik sayfa takibini başlat
+  usePageView();
+  
   useEffect(() => {
     if (!isInitialized.current) {
       initialize();
@@ -131,6 +154,14 @@ const App: FC<PropsFromRedux> = (props): JSX.Element => {
         const fp = await fpPromise;
         const result = await fp.get();
         localStorage.setItem(import.meta.env.VITE_REACT_APP_FINGERPRINT_NAME!, result.visitorId);
+        
+        // Firebase Analytics: Kullanıcı kimliğini tanımla
+        isSupported().then((supported) => {
+            if (supported) {
+                const analytics = getAnalytics();
+                setUserId(analytics, result.visitorId);
+            }
+        });
       })();
       props.setFingerprintInitStatus(true);
     }
@@ -157,6 +188,14 @@ const App: FC<PropsFromRedux> = (props): JSX.Element => {
 
     setAuthLocale(authType);
     setAuthenticatedUser(authUser);
+
+    // Firebase Analytics: Kullanıcı tipini (Guest/User) segment olarak belirle
+    isSupported().then((supported) => {
+        if (supported) {
+            const analytics = getAnalytics();
+            setUserProperties(analytics, { user_type: authType });
+        }
+    });
   }
 
   return (!componentsInit ? <><Loading /></> :
