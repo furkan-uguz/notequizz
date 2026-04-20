@@ -1,5 +1,4 @@
-import * as Tone from 'tone';
-import { ContentList } from '../constants/ContentList';
+import { playNoteSound } from "./Sound";
 
 // Window arayüzünü genişleterek webkitAudioContext özelliğini TypeScript'e tanıtıyoruz.
 declare global {
@@ -23,6 +22,14 @@ export type Note = {
    | 'F5' | 'G5' | 'A6' | 'B6' | 'C6' | 'D6' | 'E6' | 'F6' | 'G6' | 'A7'
    | 'B7' | 'C7' | 'D7' | 'E7' | 'F7' | 'G7';
 };
+
+export type Question = {
+  correctNote: Note;
+  options: string[];
+  play: () => void;
+};
+
+export const noteNames = ['Do', 'Re', 'Mi', 'Fa', 'Sol', 'La', 'Si'] as const;
 
 // Notes on the treble clef staff
 export const notes: Note[] = [
@@ -84,14 +91,6 @@ export const notes: Note[] = [
   { name: 'B', solfege: 'Si', octave: 7, position: 25, clef: 'treble', frequency: 3951.07, fullName: 'B7' },
 ];
 
-export const noteNames = ['Do', 'Re', 'Mi', 'Fa', 'Sol', 'La', 'Si'] as const;
-
-export type Question = {
-  correctNote: Note;
-  options: string[];
-  play: () => void;
-};
-
 function shuffleArray<T>(array: T[]): T[] {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -100,115 +99,7 @@ function shuffleArray<T>(array: T[]): T[] {
   return array;
 }
 
-/**
- * Tone.js Sampler instance for piano sounds.
- */
-let pianoSampler: Tone.Sampler | null = null;
-let pianoReverb: Tone.Reverb | null = null;
-let effectPlayers: Tone.Players | null = null;
-let backgroundPlayer: Tone.Player | null = null;
-
-export function initBackgroundMusic(): Promise<void> {
-  return new Promise((resolve) => {
-    backgroundPlayer = new Tone.Player({
-      url: ContentList.BG_THEME_MUSIC,
-      loop: true,
-      autostart: false,
-      onload: () => resolve(),
-    }).toDestination();
-  });
-}
-
-export function controlBackgroundMusic(command: 'start' | 'stop', volume: number = 0.5) {
-  if (!backgroundPlayer) return;
-  if (command === 'start') {
-    backgroundPlayer.start(Tone.now(), 16); // 16 saniyelik bir başlangıç noktası belirliyoruz
-    backgroundPlayer.volume.value = Tone.gainToDb(volume);
-    if (backgroundPlayer.state !== 'started') backgroundPlayer.start(Tone.now(), 16);
-  } else {
-    backgroundPlayer.stop();
-  }
-}
-
-export function fadeBackgroundMusic(targetVolume: number, duration: number = 1) {
-  if (backgroundPlayer) {
-    // 0-1 arası linear gain değerini dB'e çevirip rampTo ile yumuşak geçiş yapıyoruz.
-    backgroundPlayer.volume.rampTo(Tone.gainToDb(targetVolume), duration);
-  }
-}
-
-export function playEffect(type: 'correct' | 'incorrect') {
-  if (effectPlayers && effectPlayers.loaded) {
-    effectPlayers.player(type).start();
-  } else {
-    console.warn(`Effect player for ${type} is not loaded yet.`);
-  }
-}
-
-export function playFrequency(frequency: number, type: OscillatorType = 'sine') {
-  const synth = new Tone.Oscillator(frequency, type);
-  if (pianoReverb) {
-    synth.connect(pianoReverb);
-  } else {
-    synth.toDestination();
-  }
-  synth.start().stop("+1.2");
-}
-
-/**
- * Belirtilen notanın piyano ses dosyasını çalar.
- */
-export function playNoteSound(note: Note, volume: number = 1, noteSoundType: 'piano' | 'oscillator' = 'piano', oscillatorType: OscillatorType = 'sine') {
-  console.log(`Playing note: ${note.fullName} at frequency ${note.frequency} Hz with volume ${volume}`);
-  if (noteSoundType === 'oscillator' || (!pianoSampler || !pianoSampler.loaded)) {
-    playFrequency(note.frequency, oscillatorType);
-    return;
-  }
-
-  // Tone.js uses decibels. Linear 0.5 is approx -6dB.
-  pianoSampler.volume.value = Tone.gainToDb(1);
-  pianoSampler.triggerAttackRelease(note.fullName, "2n");
-}
-
-/**
- * Tone.js Sampler'ı başlatır ve notaları yükler.
- */
-export function initSounds(): Promise<void> {
-  return new Promise((resolve) => {
-    const urls: Record<string, string> = {};
-    notes.forEach(note => {
-      urls[note.fullName] = `octav-${note.octave}/${note.fullName.toLowerCase()}.ogg`;
-    });
-
-    // Efekt seslerini yükle (public/sounds/effects/ altındaki dosyalar)
-    effectPlayers = new Tone.Players({
-      correct: ContentList.CORRECT_ANSWER_SOUND_SRC, // "sounds/effects/correct.ogg"
-      incorrect: ContentList.WRONG_ANSWER_SOUND_SRC // "sounds/effects/incorrect.ogg"
-    }).toDestination();
-
-    // Sesin daha profesyonel ve dolgun duyulması için Reverb efekti ekliyoruz
-    pianoReverb = new Tone.Reverb({
-      decay: 1.5, // Yankının sönümlenme süresi (saniye)
-      wet: 0.1   // Yankı miktarının orijinal sese oranı (%25)
-    }).toDestination();
-
-    pianoSampler = new Tone.Sampler({
-      urls,
-      baseUrl: "notes/",
-      onload: () => {
-        console.log("Piano sampler loaded successfully");
-        resolve();
-      },
-      onerror: (error) => {
-        console.error("Error occurred while loading piano sampler:", error);
-        resolve(); // Hata durumunda da resolve ediyoruz, böylece oyun devam eder.
-      }
-    }).connect(pianoReverb);
-  });
-}
-
 export function getQuestion(excludeSolfege1?: string | null, excludeSolfege2?: string | null, allowedOctaves?: Set<string>): Question {
-
   let octaveFilteredNotes = notes;
   if (allowedOctaves && allowedOctaves.size > 0) {
     const octavesArr = Array.from(allowedOctaves).map(Number);

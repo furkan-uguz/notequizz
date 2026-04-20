@@ -7,7 +7,8 @@ import { GameStatus } from '../constants/GameStatus';
 import { Constant } from '../constants/Constant';
 import { setGameStatus, setPoint, setStreak, setResetGame } from '../states/actions/gameAction';
 import { StateType } from '../states/reducers';
-import { getQuestion, notes, playFrequency, playNoteSound, playEffect, Question, fadeBackgroundMusic, controlBackgroundMusic } from '../lib/Note';
+import { getQuestion, notes, Question } from '../lib/Note';
+import { playFrequency, playNoteSound, playEffect, fadeBackgroundMusic, controlBackgroundMusic } from '../lib/Sound';
 import { Award, CheckCircle, Clock, Flame, LogOut, ShieldX, Star, Volume2 } from 'lucide-react';
 import Flex, { FlexType } from '../components/Flex';
 import { Button, Card, CardBody, CardFooter, CardHeader, Progress, Select, SelectItem, Slider, Switch, Chip, Input, Tabs, Tab } from '@heroui/react';
@@ -85,8 +86,8 @@ const Home: FC<PropsFromRedux> = (props): JSX.Element => {
         if (savedVolume !== null) {
             const v = parseFloat(savedVolume);
             setMusicVolume(v);
-            controlBackgroundMusic('start', musicVolume);
-            fadeBackgroundMusic(v, 1.5); // Kayıtlı sesi anında uygula
+            controlBackgroundMusic('start', v < 0.05 ? v : 0.05); // Kayıtlı sesi anında uygula (0.05'ten düşükse tamamen kapat)
+            fadeBackgroundMusic(v, 1);
         }
         if (savedDuration !== null) {
             const d = parseInt(savedDuration);
@@ -129,7 +130,7 @@ const Home: FC<PropsFromRedux> = (props): JSX.Element => {
     useEffect(() => {
         // Sadece oyun veya alıştırma modundayken yeni bir soru geldiğinde notayı çal
         if (question && (game.gameStatus === GameStatus.PLAYING || game.gameStatus === GameStatus.EXERCISING)) {
-            playNoteSound(question.correctNote, 1, noteSoundType, oscillatorType); //TODO Ana menü müzik sesiyle karışmaması için ayrı bir müzik/sfx ses seviyesi eklenebilir
+            playNoteSound(question.correctNote, 1, noteSoundType, oscillatorType);
         }
     }, [question, game.gameStatus, noteSoundType, oscillatorType]);
 
@@ -205,13 +206,20 @@ const Home: FC<PropsFromRedux> = (props): JSX.Element => {
     }, [selection, question, soundEffectsEnabled, game.streak, props, loadNextQuestion]);
 
     const fadeOutMusic = useCallback(() => {
-        // Tone.js ile 1 saniye içinde pürüzsüzce sesi kapat
-        fadeBackgroundMusic(0, 1);
+        const fadeVolume = musicVolume < 0.05 ? musicVolume - 0.01 : 0.05;
+        // Tone.js ile pürüzsüzce sesi kıs.
+        fadeBackgroundMusic(fadeVolume, 1);
     }, []);
+
+    const fadeInMusic = useCallback(() => {
+        // Tone.js ile pürüzsüzce sesi aç.
+        fadeBackgroundMusic(musicVolume, 1);
+    }, [musicVolume]);
 
     const endGameAction = () => {
         props.setGameStatus(GameStatus.END);
-    };
+        fadeInMusic();
+    }
 
     const startGameAction = () => {
         loadNextQuestion();
@@ -232,8 +240,7 @@ const Home: FC<PropsFromRedux> = (props): JSX.Element => {
         props.setResetGame();
         props.setGameStatus(GameStatus.START);
         setTimeLeft(gameDuration);
-        fadeBackgroundMusic(musicVolume, 5); // 1 saniyede geri aç
-        controlBackgroundMusic('start', musicVolume);
+        fadeInMusic();
     }
 
     const playAgainAction = () => {
@@ -453,8 +460,8 @@ const Home: FC<PropsFromRedux> = (props): JSX.Element => {
                         </div>
                     </header>
                     <main>
-                        <Card shadow='lg' className='bg-white overflow-hidden relative'>
-                            <CardBody>
+                        <Card shadow='lg' className='bg-white overflow-hidden relative min-h-[240px]'>
+                            <CardBody className="flex items-center justify-center py-10 overflow-visible">
                                 {showOctaveBadge && (
                                     <div className="absolute top-2 right-2 z-20">
                                         <Chip size="sm" variant="flat" color={octaveColor} className="font-bold">
@@ -749,21 +756,23 @@ const Home: FC<PropsFromRedux> = (props): JSX.Element => {
                 <title>{Constant.APP_NAME}</title>
             </Helmet>
             {/* TEST INPUT: Sadece geliştirme sürecinde dizeği kontrol etmek için */}
-            <div className="fixed top-4 left-4 z-[100] opacity-80 hover:opacity-100 transition-opacity flex gap-2">
-                <input 
-                    type="text" 
-                    value={testValue} 
-                    onChange={handleTestInputChange} 
-                    placeholder="Test: C4, A3..."
-                    className="w-32 p-2 bg-white/90 text-black border-2 border-secondary rounded-lg shadow-lg font-bold uppercase focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-                <button 
-                    onClick={triggerTestFeedback}
-                    className="px-4 py-2 bg-primary text-white rounded-lg shadow-lg font-bold hover:scale-105 active:scale-95 transition-transform"
-                >
-                    🎉 Test
-                </button>
-            </div>
+            {import.meta.env.DEV && (
+                <div className="fixed top-4 left-4 z-[100] opacity-80 hover:opacity-100 transition-opacity flex gap-2">
+                    <input 
+                        type="text" 
+                        value={testValue} 
+                        onChange={handleTestInputChange} 
+                        placeholder="Test: C4, A3..."
+                        className="w-32 p-2 bg-white/90 text-black border-2 border-secondary rounded-lg shadow-lg font-bold uppercase focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                    <button 
+                        onClick={triggerTestFeedback}
+                        className="px-4 py-2 bg-primary text-white rounded-lg shadow-lg font-bold hover:scale-105 active:scale-95 transition-transform"
+                    >
+                        🎉 Test
+                    </button>
+                </div>
+            )}
             <Background blurBackground = {game.gameStatus == GameStatus.END}>
                 {gameBegin()}
             </Background>
