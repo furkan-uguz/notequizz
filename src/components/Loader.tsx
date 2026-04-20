@@ -1,7 +1,7 @@
 import { FC, useEffect, useState } from "react";
 import Box from "./Box";
 import Flex, { FlexType } from "./Flex";
-import Const from "../utils/Const";
+import { Constant } from "../constants/Constant";
 import { Progress } from "@heroui/react";
 
 interface ILoader {
@@ -42,7 +42,7 @@ const Loader: FC<ILoader> = ({ ...props }: ILoader) => {
                     <FlexType flexType='flex-initial'>
                         <Box className={'pulse-anim-cont'}>
                             <div className='pulse-anim loading-background' />
-                            <div className='pulse-anim loading-text'>{Const.APP_NAME}</div>
+                            <div className='pulse-anim loading-text'>{Constant.APP_NAME}</div>
                         </Box>
                         {loadingBarCompleted ?
                             <Flex align={'center'} justify={'center'}><p className="text-white justify-center items-center text-2xl">Click To Continue</p></Flex> :

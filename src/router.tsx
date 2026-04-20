@@ -1,7 +1,7 @@
 import { RouteObject, useRoutes } from 'react-router-dom';
 import Home from './pages/Home';
 import Error from './pages/Error';
-import Const from './utils/Const';
+import { Constant } from './constants/Constant';
 
 interface RouteProps {
     auth: string;
@@ -17,7 +17,7 @@ const Router = (props : RouteProps) => {
        // Only user allow routes will defines here.
     ];
 
-    const defaultRoutes: RouteObject[] = props.auth === Const.GUEST_USER ? guestRoutes : userRoutes;
+    const defaultRoutes: RouteObject[] = props.auth === Constant.GUEST_USER ? guestRoutes : userRoutes;
     defaultRoutes.push(
         {
             path: "*",
