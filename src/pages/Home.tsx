@@ -149,12 +149,10 @@ const Home: FC<PropsFromRedux> = (props): JSX.Element => {
                 setTimeLeft(t => t - 1);
         }, 1000);
 
+        gameBegin();
+
         return () => clearInterval(timerId);
     }, [timeLeft, game.gameStatus]);
-
-    useEffect(() => {
-        gameBegin();
-    }, [game.gameStatus]);
 
     const handleAnswer = useCallback((answer: string) => {
         if (selection || !question) return;
