@@ -10,6 +10,7 @@ import { StateType } from '../states/reducers';
 import { getQuestion, notes, Question } from '../lib/Note';
 import { playFrequency, playNoteSound, playEffect, fadeBackgroundMusic, controlBackgroundMusic } from '../lib/Sound';
 import { Award, CheckCircle, Clock, Flame, LogOut, ShieldX, Star, Volume2 } from 'lucide-react';
+import { getAnalytics, logEvent, isSupported } from 'firebase/analytics';
 import Flex, { FlexType } from '../components/Flex';
 import { Button, Card, CardBody, CardFooter, CardHeader, Progress, Select, SelectItem, Slider, Switch, Chip, Input, Tabs, Tab } from '@heroui/react';
 import { NoteStaff } from '../components/NoteStaff';
@@ -217,6 +218,20 @@ const Home: FC<PropsFromRedux> = (props): JSX.Element => {
     const endGameAction = () => {
         props.setGameStatus(GameStatus.END);
         fadeInMusic();
+
+        // Firebase Analytics: Oyun verilerini logla
+        isSupported().then((supported) => {
+            if (supported) {
+                const analytics = getAnalytics();
+                logEvent(analytics, 'level_end', {
+                    score: game.point,
+                    duration_seconds: gameDuration,
+                    correct_count: game.correct,
+                    wrong_count: game.wrong,
+                    max_streak: game.totalStreak
+                });
+            }
+        });
     }
 
     const startGameAction = () => {
@@ -225,6 +240,17 @@ const Home: FC<PropsFromRedux> = (props): JSX.Element => {
         props.setGameStatus(GameStatus.PLAYING);
         setTimeLeft(gameDuration);
         fadeOutMusic();
+
+        // Firebase Analytics: Oyun başlangıcını logla
+        isSupported().then((supported) => {
+            if (supported) {
+                const analytics = getAnalytics();
+                logEvent(analytics, 'game_start', {
+                    mode: 'classic',
+                    duration_seconds: gameDuration
+                });
+            }
+        });
     }
 
     const startExerciseModeAction = () => {
@@ -232,6 +258,16 @@ const Home: FC<PropsFromRedux> = (props): JSX.Element => {
         props.setResetGame();
         props.setGameStatus(GameStatus.EXERCISING);
         fadeOutMusic();
+
+        // Firebase Analytics: Alıştırma modu başlangıcını logla
+        isSupported().then((supported) => {
+            if (supported) {
+                const analytics = getAnalytics();
+                logEvent(analytics, 'game_start', {
+                    mode: 'exercise'
+                });
+            }
+        });
     }
 
     const exitGameAction = () => {

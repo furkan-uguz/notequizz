@@ -17,18 +17,19 @@ const Router = (props : RouteProps) => {
        // Only user allow routes will defines here.
     ];
 
-    const defaultRoutes: RouteObject[] = props.auth === Constant.GUEST_USER ? guestRoutes : userRoutes;
-    defaultRoutes.push(
-        {
-            path: "*",
-            element: <Error />,
-        },
+    const activeRoutes: RouteObject[] = [
+        ...(props.auth === Constant.GUEST_USER ? guestRoutes : userRoutes),
         {
             path: "/",
             element: <Home />,
+        },
+        {
+            path: "*",
+            element: <Error />,
         }
-    );
-    const routes = useRoutes(defaultRoutes);
+    ];
+
+    const routes = useRoutes(activeRoutes);
     return (
         <>{routes}</>
     );

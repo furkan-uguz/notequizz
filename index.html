@@ -12,30 +12,6 @@
 <body>
   <div id="root"></div>
   <script type="module" src="/src/main.tsx"></script>
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-WRTE5ZY5ZC"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag() { dataLayer.push(arguments); }
-    gtag('js', new Date());
-
-    gtag('config', 'G-WRTE5ZY5ZC', {
-      'browser_type': getBrowserInfo(),
-      'user_platform': navigator.platform
-    });
-    const getBrowserInfo = () => {
-      const ua = navigator.userAgent;
-      let browser = "Diğer";
-
-      if (ua.includes("Firefox")) browser = "Mozilla Firefox";
-      else if (ua.includes("SamsungBrowser")) browser = "Samsung Browser";
-      else if (ua.includes("Opera") || ua.includes("OPR")) browser = "Opera";
-      else if (ua.includes("Edge")) browser = "Microsoft Edge";
-      else if (ua.includes("Chrome")) browser = "Google Chrome";
-      else if (ua.includes("Safari")) browser = "Apple Safari";
-
-      return browser;
-    };
-  </script>
 </body>
 
 </html>
