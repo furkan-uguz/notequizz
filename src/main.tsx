@@ -23,7 +23,7 @@ import { initSounds, initBackgroundMusic } from './lib/Sound';
 import usePageView from './hooks/useAnalytics';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDdqrgLCiptUGxqpC4j5VuC5nk9zlwQGhA",
+  apiKey: "AIzaSyDdqrgLCiptUGxqpC4j5VuC5nk9zlwQGhA",//TODO SAKLA
   authDomain: "notequizz.firebaseapp.com",
   databaseURL: "https://notequizz-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "notequizz",
