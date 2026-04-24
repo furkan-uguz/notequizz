@@ -87,7 +87,7 @@ const Home: FC<PropsFromRedux> = (props): JSX.Element => {
         if (savedVolume !== null) {
             const v = parseFloat(savedVolume);
             setMusicVolume(v);
-            controlBackgroundMusic('start', v < 0.05 ? v : 0.05); // Kayıtlı sesi anında uygula (0.05'ten düşükse tamamen kapat)
+            controlBackgroundMusic('start', v);
             fadeBackgroundMusic(v, 1);
         }
         if (savedDuration !== null) {
@@ -205,10 +205,11 @@ const Home: FC<PropsFromRedux> = (props): JSX.Element => {
     }, [selection, question, soundEffectsEnabled, game.streak, props, loadNextQuestion]);
 
     const fadeOutMusic = useCallback(() => {
-        const fadeVolume = musicVolume < 0.05 ? musicVolume - 0.01 : 0.05;
+        console.log("Fading out music. Current volume:", musicVolume);
+        const fadeVolume =  musicVolume > 0.1 ? 0.1 : musicVolume - (musicVolume * 60 / 100);
         // Tone.js ile pürüzsüzce sesi kıs.
         fadeBackgroundMusic(fadeVolume, 1);
-    }, []);
+    }, [musicVolume]);
 
     const fadeInMusic = useCallback(() => {
         // Tone.js ile pürüzsüzce sesi aç.
@@ -344,7 +345,6 @@ const Home: FC<PropsFromRedux> = (props): JSX.Element => {
     }
 
     const resetToDefaults = () => {
-        setMusicVolume(0.5);
         setGameDuration(Constant.GAME_DURATION_MIN);
         setSoundEffectsEnabled(true);
         setNoteSoundType('piano');
@@ -353,7 +353,6 @@ const Home: FC<PropsFromRedux> = (props): JSX.Element => {
         setSelectedOctaves(new Set(['3', '4', '5']));
         setShowOctaveBadge(true);
         setButtonKeys(['1', '2', '3', '4']);
-        fadeBackgroundMusic(0.5, 0);
     }
 
     const handleVolumeChange = (value: number | number[]) => {
@@ -499,7 +498,7 @@ const Home: FC<PropsFromRedux> = (props): JSX.Element => {
                                 {showOctaveBadge && (
                                     <div className="absolute top-2 right-2 z-20">
                                         <Chip size="sm" variant="flat" color={octaveColor} className="font-bold">
-                                            Oktav {question.correctNote.octave}
+                                            {Constant.OCTAVE_NAME + " " + question.correctNote.octave}
                                         </Chip>
                                     </div>
                                 )}

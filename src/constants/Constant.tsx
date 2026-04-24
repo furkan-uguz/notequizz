@@ -44,6 +44,7 @@ export const Constant = {
     CORRECT_ANSWER: "Correct(s)",
     WRONG_ANSWER: "Wrong(s)",
     STREAK: "Streak(s)",
+    OCTAVE_NAME: "Octave",
     CONFETTI_CELEBRATION_1: "Awesome!",
     CONFETTI_CELEBRATION_2: "Perfect!",
     CONFETTI_CELEBRATION_3: "Super!",
