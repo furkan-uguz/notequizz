@@ -23,14 +23,14 @@ import { initSounds, initBackgroundMusic } from './lib/Sound';
 import usePageView from './hooks/useAnalytics';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDdqrgLCiptUGxqpC4j5VuC5nk9zlwQGhA",//TODO SAKLA
-  authDomain: "notequizz.firebaseapp.com",
-  databaseURL: "https://notequizz-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "notequizz",
-  storageBucket: "notequizz.appspot.com",
-  messagingSenderId: "28432330911",
-  appId: "1:28432330911:web:a73a5360f225f2d11e72aa",
-  measurementId: "G-WRTE5ZY5ZC",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
 // Firebase'i modül seviyesinde başlatmak, hook'ların güvenle çalışmasını sağlar.
