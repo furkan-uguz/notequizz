@@ -33,6 +33,11 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
+// Konfigürasyon kontrolü (Hatalı deployment'ları yakalamak için)
+if (!firebaseConfig.projectId && import.meta.env.PROD) {
+  console.error("Firebase Project ID is missing! Please check your Environment Variables.");
+}
+
 // Firebase'i modül seviyesinde başlatmak, hook'ların güvenle çalışmasını sağlar.
 const app = initializeApp(firebaseConfig);
 getPerformance(app);
