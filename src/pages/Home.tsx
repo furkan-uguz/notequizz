@@ -187,9 +187,15 @@ const Home: FC<PropsFromRedux> = (props): JSX.Element => {
 		});
 	};
 
-	const startExerciseModeAction = () => {
+	const selectExerciseModeAction = () => {
+		props.setGameStatus(GameStatus.SELECTING_EXERCISE_MODE);
+	};
+
+	const startExerciseAction = (gameMode: GameMode) => {
 		props.setResetGame();
+		props.setGameMode(gameMode);
 		props.setGameStatus(GameStatus.EXERCISING);
+		props.setQuestion(getQuestion(null, null, selectedOctaves));
 		fadeOutMusic(game.musicVolume);
 
 		// Firebase Analytics: Alıştırma modu başlangıcını logla
@@ -197,14 +203,18 @@ const Home: FC<PropsFromRedux> = (props): JSX.Element => {
 			if (supported) {
 				const analytics = getAnalytics();
 				logEvent(analytics, "game_start", {
-					mode: "exercise",
+					mode: `exercise_${GameMode[gameMode].toLowerCase()}`,
 				});
 			}
 		});
 	};
 
 	const playAgainAction = () => {
-		startGameAction(game.gameMode);
+		if (game.gameStatus === GameStatus.EXERCISING) {
+			startExerciseAction(game.gameMode);
+		} else {
+			startGameAction(game.gameMode);
+		}
 	};
 
 	const settingsAction = () => {
@@ -311,7 +321,7 @@ const Home: FC<PropsFromRedux> = (props): JSX.Element => {
 
 	const gameBegin = (): JSX.Element => {
 		if (game.gameStatus == GameStatus.START) return readyGame();
-		else if (game.gameStatus == GameStatus.SELECTING_MODE) return selectMode();
+		else if (game.gameStatus == GameStatus.SELECTING_MODE || game.gameStatus == GameStatus.SELECTING_EXERCISE_MODE) return selectMode();
 		else if (game.gameStatus == GameStatus.PLAYING || game.gameStatus == GameStatus.EXERCISING)
 			return (
 				<Game
@@ -343,7 +353,7 @@ const Home: FC<PropsFromRedux> = (props): JSX.Element => {
 						</AnimatedButton>
 					</FlexType>
 					<FlexType flexType="flex-auto" className="antialiased opacity-anim">
-						<AnimatedButton color="secondary" onPress={() => startExerciseModeAction()} className="text-2xl w-40">
+						<AnimatedButton color="secondary" onPress={() => selectExerciseModeAction()} className="text-2xl w-40">
 							{Constant.EXERCISE_BUTTON}
 						</AnimatedButton>
 					</FlexType>
@@ -363,6 +373,15 @@ const Home: FC<PropsFromRedux> = (props): JSX.Element => {
 	};
 
 	const selectMode = (): JSX.Element => {
+		const isExercise = game.gameStatus === GameStatus.SELECTING_EXERCISE_MODE;
+		const handleSelectMode = (mode: GameMode) => {
+			if (isExercise) {
+				startExerciseAction(mode);
+			} else {
+				startGameAction(mode);
+			}
+		};
+
 		return (
 			<Box size={"sm"} mxAuto={true} className="opacity-anim">
 				<Flex mxAuto={true} align="center" justify="center" className="p-3 flex-col gap-4">
@@ -378,7 +397,7 @@ const Home: FC<PropsFromRedux> = (props): JSX.Element => {
 							<AnimatedButton
 								containerClassName="flex-1 px-2"
 								color="secondary"
-								onPress={() => startGameAction(GameMode.READING)}
+								onPress={() => handleSelectMode(GameMode.READING)}
 								className="w-40 h-20 text-2xl text-white flex flex-col items-center justify-center transition-all duration-300"
 							>
 								<BookOpen className="w-15 h-15 text-white" />
@@ -387,7 +406,7 @@ const Home: FC<PropsFromRedux> = (props): JSX.Element => {
 							<AnimatedButton
 								containerClassName="flex-1 px-2"
 								color="secondary"
-								onPress={() => startGameAction(GameMode.LISTENING)}
+								onPress={() => handleSelectMode(GameMode.LISTENING)}
 								className="w-40 h-20 text-2xl text-white flex flex-col items-center justify-center transition-all duration-300"
 							>
 								<Ear className="w-15 h-15 text-white" />
