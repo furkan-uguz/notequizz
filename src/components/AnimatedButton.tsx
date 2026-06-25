@@ -12,7 +12,7 @@ interface AnimatedButtonProps extends ButtonProps {
 
 export const AnimatedButton: React.FC<AnimatedButtonProps> = ({ children, motionProps, containerClassName, className, ...buttonProps }) => {
 	// Varsayılan yükselme ve ölçekleme animasyonu
-	const defaultMotion: HTMLMotionProps<"div"> = {
+	const defaultMotion: Omit<HTMLMotionProps<"div">, "ref"> = {
 		whileHover: { y: -15, scale: 1.02 },
 		transition: { type: "spring", stiffness: 300, damping: 15 },
 		...motionProps,
