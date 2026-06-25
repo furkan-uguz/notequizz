@@ -1,244 +1,140 @@
-import React, { FC, useEffect, useState, useRef } from 'react'
-import ReactDOM from 'react-dom/client'
-import { HelmetProvider } from 'react-helmet-async';
-import { BrowserRouter, useNavigate } from 'react-router-dom'
-import { ConnectedProps, Provider, connect, useSelector } from 'react-redux';
-import { IAddOptions, Loader } from 'resource-loader';
-import { initializeApp } from "firebase/app";
-import { getPerformance } from "firebase/performance";
-import { getAnalytics, isSupported, setUserId, setUserProperties } from "firebase/analytics";
-import FingerprintJS from '@fingerprintjs/fingerprintjs';
-import WebFont from 'webfontloader';
-import Router from './router';
-import AuthContext, { AuthContextProvider } from './contexts/AuthContext';
-import store from './states';
-import { StateType } from './states/reducers';
-import { setGameLoading } from './states/actions/gameAction';
-import { setFingerprintInitStatus, setVideoLoading, setFontLoading, setVideoContent, setMusicLoading, setSoundLoading } from './states/actions/contentAction';
-import { ContentList } from './constants/ContentList';
-import { Constant } from './constants/Constant';
-import Loading from './pages/Loading';
-import { HeroUIProvider } from '@heroui/react';
-import { initSounds, initBackgroundMusic } from './lib/Sound';
-import usePageView from './hooks/useAnalytics';
+import React, { FC, useEffect, useState, useRef, useCallback } from "react";
+import ReactDOM from "react-dom/client";
+import { HelmetProvider } from "react-helmet-async";
+import { BrowserRouter, useNavigate } from "react-router-dom";
+import { ConnectedProps, Provider, connect, useSelector } from "react-redux";
+import { getAnalytics, isSupported, setUserProperties } from "firebase/analytics";
+import { HeroUIProvider } from "@heroui/react";
+import Router from "./router";
+import AuthContext, { AuthContextProvider } from "./contexts/AuthContext";
+import store from "./states";
+import { StateType } from "./states/reducers";
+import { setGameLoading } from "./states/actions/gameAction";
+import { setVideoLoading, setVideoContent, setMusicLoading, setSoundLoading } from "./states/actions/contentAction";
+import { Constant } from "./constants/Constant";
+import Loading from "./pages/Loading";
+import usePageView from "./hooks/useAnalytics";
+import { ChalkLogger } from "./utils/ChalkLogger";
+import { Initializer } from "./utils/Initializer";
 
-const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
-};
-
-// Konfigürasyon kontrolü (Hatalı deployment'ları yakalamak için)
-if (!firebaseConfig.projectId && import.meta.env.PROD) {
-  console.error("Firebase Project ID is missing! Please check your Environment Variables.");
+if (import.meta.env.PROD) {
+	console.debug = () => {};
+	console.trace = () => {};
 }
-
-// Firebase'i modül seviyesinde başlatmak, hook'ların güvenle çalışmasını sağlar.
-const app = initializeApp(firebaseConfig);
-getPerformance(app);
-isSupported().then((supported) => supported && getAnalytics(app));
 
 const App: FC<PropsFromRedux> = (props): JSX.Element => {
-  const [authenticatedUser, setAuthenticatedUser] = useState<AuthContextProvider>();
-  const [authLocale, setAuthLocale] = useState(Constant.GUEST_USER);
-  const [componentsInit, setComponentsInit] = useState(false);
-  const content = useSelector((state: StateType) => state.content);
-  const game = useSelector((state: StateType) => state.game);
-  const navigate = useNavigate();
-  const isInitialized = useRef(false);
+	const [authenticatedUser, setAuthenticatedUser] = useState<AuthContextProvider>();
+	const [authLocale, setAuthLocale] = useState(Constant.GUEST_USER);
+	const [componentsInit, setComponentsInit] = useState(false);
+	const content = useSelector((state: StateType) => state.content);
+	const game = useSelector((state: StateType) => state.game);
+	const navigate = useNavigate();
+	const isInitializationStarted = useRef(false);
+	const logger = new ChalkLogger("#0acaffff", "Main");
 
-  // Otomatik sayfa takibini başlat
-  usePageView();
-  
-  useEffect(() => {
-    if (!isInitialized.current) {
-      initialize();
-      isInitialized.current = true;
-    }
-  }, []);
+	usePageView();
 
-  useEffect(() => {
-    if (content.isInit && game.isInit)
-      handleLoading();
+	const buildAuthenticatedUser = useCallback(
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		(authType: typeof Constant.GUEST_USER | typeof Constant.AUTH_USER, user: any) => {
+			const authUser: AuthContextProvider = {
+				authType: authType,
+				authenticatedUser: {
+					id: 0,
+					fullname: "",
+					username: "",
+					email: "",
+					roles: [],
+				},
+			};
+			if (authType === Constant.AUTH_USER) {
+				authUser.authenticatedUser.id = user.id;
+				authUser.authenticatedUser.fullname = user.fullname;
+				authUser.authenticatedUser.username = user.username;
+				authUser.authenticatedUser.email = user.email;
+				authUser.authenticatedUser.roles = user.roles;
+			}
 
-  }, [content, game]);
+			setAuthLocale(authType);
+			setAuthenticatedUser(authUser);
 
-  const initialize = () => {
-    console.log("Initialization started");
-    initFingerPrint();
-    setAuthLevel();
-    loadFonts();
-    loadVideoContent();
-    loadMusics();
-    loadSounds();
-  }
+			// Firebase Analytics: Kullanıcı tipini (Guest/User) segment olarak belirle
+			isSupported().then((supported) => {
+				if (supported) {
+					const analytics = getAnalytics();
+					setUserProperties(analytics, { user_type: authType });
+				}
+			});
+		},
+		[setAuthLocale, setAuthenticatedUser],
+	);
 
-  const handleLoading = () => {
-    if (!componentsInit && !content.isLoading && !game.isLoading) {// Add here authorization flag
-      if (content.isFingerPrintInited && content.isFontLoaded && content.isMusicLoaded && content.isVideoLoaded) {
-        setComponentsInit(true);
-        console.log("Components ready!");
-      }
-    }
-  }
+	const setAuthLevel = useCallback(() => {
+		if (game.isLoading) {
+			buildAuthenticatedUser(Constant.GUEST_USER, []);
+			props.setGameLoading(false);
+		}
+	}, [buildAuthenticatedUser, game.isLoading, props]);
 
-  const setAuthLevel = () => {
-    if (game.isLoading) {
-      buildAuthenticatedUser(Constant.GUEST_USER, []);
-      props.setGameLoading(false);
-    }
-  }
+	const initialize = useCallback(async () => {
+		console.debug(
+			"%c  NOTE QUIZZ  ",
+			"background: #1d2673d8; color: white; padding: 8px 15px; border-radius: 4px; font-size: 2.5em; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); line-height: 1.2;",
+		);
+		logger.group("APP");
+		logger.debug("App starting...");
+		await Initializer.getInstance().initialize();
+		setAuthLevel();
+		logger.groupEnd();
+	}, [setAuthLevel, logger]);
 
-  const loadFonts = () => {
-    if (!content.isFontLoaded) {
-      WebFont.load({
-        custom: {
-          families: ['Niconne-Regular'],
-          urls: ['./css/index.css']
-        },
-        active: () => {
-          props.setFontLoading(true);
-        }
-      });
-    }
-  }
+	useEffect(() => {
+		if (!isInitializationStarted.current) {
+			initialize();
+			isInitializationStarted.current = true;
+		}
+	}, [initialize]);
 
-  const loadVideoContent = () => {
-    if (!content.isVideoLoaded) {
-      const options: IAddOptions = {
-        baseUrl:ContentList.CLOUDINARY_URL,
-        url: ContentList.BG_VIDEO_SRC,
-        crossOrigin: 'anonymous',
-        loadType: 2,
-        xhrType: 'blob',
-      };
-      
-      const videoLoader = new Loader();
-      videoLoader.use((resource, next) => {
-        // Eğer iOS mime-type'ı boş bırakırsa manuel ata
-        if (resource.data instanceof Blob && !resource.data.type) {
-          resource.data = resource.data.slice(0, resource.data.size, 'video/mp4');
-        }
-        next();
-      });
+	useEffect(() => {
+		if (!componentsInit && content.isInit && game.isInit && !content.isLoading && !game.isLoading) {
+			setComponentsInit(content.isFingerPrintInited && content.isFontLoaded && content.isMusicLoaded && content.isVideoLoaded);
+		}
+	}, [content, game, componentsInit]);
 
-      videoLoader.add(options).load((_loader, resource) => {
-        props.setVideoContent(resource[ContentList.BG_VIDEO_SRC]?.data);
-        props.setVideoLoading(true);
-      });
-    }
-  }
-
-  const loadMusics = () => {
-    if (!content.isMusicLoaded) {
-      initBackgroundMusic().then(() => {
-        console.log("Music loaded via Tone.js");
-        props.setMusicLoading(true);
-      });
-    }
-  }
-
- const loadSounds = () => {
-    if(!content.isSoundsLoaded) {
-      initSounds().then(() => {
-        console.log("Sounds loaded");
-        props.setSoundLoading(true);
-      });
-    }
-  }
-
-  const initFingerPrint = () => {
-    if (!content.isFingerPrintInited) {
-      const fpPromise = FingerprintJS.load();
-      (async () => {
-        const fp = await fpPromise;
-        const result = await fp.get();
-        localStorage.setItem(import.meta.env.VITE_REACT_APP_FINGERPRINT_NAME!, result.visitorId);
-        
-        // Firebase Analytics: Kullanıcı kimliğini tanımla
-        isSupported().then((supported) => {
-            if (supported) {
-                const analytics = getAnalytics();
-                setUserId(analytics, result.visitorId);
-            }
-        });
-      })();
-      props.setFingerprintInitStatus(true);
-    }
-  }
-
-  const buildAuthenticatedUser = (authType: string, user: any) => {
-    const authUser: AuthContextProvider = {
-      authType: authType,
-      authenticatedUser: {
-        id: 0,
-        fullname: "",
-        username: "",
-        email: "",
-        roles: []
-      }
-    }
-    if (authType === Constant.AUTH_USER) {
-      authUser.authenticatedUser.id = user.id;
-      authUser.authenticatedUser.fullname = user.fullname;
-      authUser.authenticatedUser.username = user.username;
-      authUser.authenticatedUser.email = user.email;
-      authUser.authenticatedUser.roles = user.roles;
-    }
-
-    setAuthLocale(authType);
-    setAuthenticatedUser(authUser);
-
-    // Firebase Analytics: Kullanıcı tipini (Guest/User) segment olarak belirle
-    isSupported().then((supported) => {
-        if (supported) {
-            const analytics = getAnalytics();
-            setUserProperties(analytics, { user_type: authType });
-        }
-    });
-  }
-
-  return (!componentsInit ? <><Loading /></> :
-    <>
-      <HelmetProvider>
-        <AuthContext.Provider value={authenticatedUser!}>
-          <HeroUIProvider navigate={navigate}>
-            <Router auth={authLocale} />
-          </HeroUIProvider>
-        </AuthContext.Provider>
-      </HelmetProvider>
-    </>
-  );
-}
+	return componentsInit ? (
+		<HelmetProvider>
+			<AuthContext.Provider value={authenticatedUser!}>
+				<HeroUIProvider navigate={navigate}>
+					<Router auth={authLocale} />
+				</HeroUIProvider>
+			</AuthContext.Provider>
+		</HelmetProvider>
+	) : (
+		<Loading />
+	);
+};
 
 const connector = connect(null, {
-  setGameLoading,
-  setVideoLoading,
-  setFontLoading,
-  setFingerprintInitStatus,
-  setVideoContent,
-  setMusicLoading,
-  setSoundLoading
+	setGameLoading,
+	setVideoLoading,
+	setVideoContent,
+	setMusicLoading,
+	setSoundLoading,
 });
 
 type PropsFromRedux = ConnectedProps<typeof connector>;
 const ConnectedApp = connector(App);
 
 const AppBuilder = () => {
-  return (
-    <Provider store={store}>
-      <React.StrictMode>
-        <BrowserRouter>
-          <ConnectedApp />
-        </BrowserRouter>
-      </React.StrictMode>
-    </Provider>
-  );
-}
+	return (
+		<Provider store={store}>
+			<React.StrictMode>
+				<BrowserRouter>
+					<ConnectedApp />
+				</BrowserRouter>
+			</React.StrictMode>
+		</Provider>
+	);
+};
 
-ReactDOM.createRoot(document.getElementById('root')!).render(<AppBuilder />);
+ReactDOM.createRoot(document.getElementById("root")!).render(<AppBuilder />);

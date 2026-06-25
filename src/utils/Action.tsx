@@ -1,8 +1,9 @@
-import { ActionType } from '../constants/ActionType';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { ActionType } from "../constants/ActionType";
 
 interface Action {
-    type: ActionType,
-    payload: any;
+	type: ActionType;
+	payload: any;
 }
 
 export default Action;
