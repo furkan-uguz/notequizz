@@ -1,10 +1,7 @@
 //import { useState,useEffect } from 'react';
 
 const Error = () => {
-
-    return (
-        <></>
-    );
-}
+	return <></>;
+};
 
 export default Error;

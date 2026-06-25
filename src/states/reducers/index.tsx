@@ -1,25 +1,28 @@
 import { combineReducers } from "redux";
 import { useSelector, TypedUseSelectorHook } from "react-redux";
 
-import contentReducer, { contentState } from "./contentReducer";
-import gameReducer, { gameState } from "./gameReducer";
+import contentReducer, { ContentState } from "./contentReducer";
+import gameReducer, { GameState } from "./gameReducer";
 import { ConfigureStoreOptions } from "@reduxjs/toolkit";
 
 const reducers = combineReducers({
-    content: contentReducer,
-    game: gameReducer,
+	content: contentReducer,
+	game: gameReducer,
 });
 
-export interface state {
-    isInit: boolean;
+export interface State {
+	isInit: boolean;
 }
 
 interface RootState {
-    content: contentState;
-    game: gameState;
+	content: ContentState;
+	game: GameState;
 }
 
 export default reducers;
 export const useTypedSelector: TypedUseSelectorHook<RootState> = useSelector;
 export type StateType = ReturnType<typeof reducers>;
-export type Configured =  ConfigureStoreOptions<{ content: contentState; game: gameState; }>;
+export type Configured = ConfigureStoreOptions<{
+	content: ContentState;
+	game: GameState;
+}>;
