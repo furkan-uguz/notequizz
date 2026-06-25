@@ -33,3 +33,4 @@ jobs:
                   firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_NOTEQUIZZ }}"
                   channelId: live
                   projectId: notequizz
+                  node-version: "22.22.0"
